@@ -61,18 +61,50 @@ export interface OpenRouterOptions {
   timeoutMs?: number;
 }
 
-interface RawResponse {
-  model?: string;
-  choices?: Array<{ message?: ChatMessage; finish_reason?: string }>;
-  usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; cost?: number };
+interface RawError {
   error?: { message?: string; code?: number | string };
 }
 
-export function createOpenRouterClient(opts: OpenRouterOptions): LlmClient {
+interface RawResponse extends RawError {
+  model?: string;
+  choices?: Array<{ message?: ChatMessage; finish_reason?: string }>;
+  usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; cost?: number };
+}
+
+/** POST a JSON body to `${baseUrl}${path}` and parse the JSON reply, surfacing OpenRouter errors. */
+async function postJson<T extends RawError>(opts: OpenRouterOptions, path: string, body: unknown): Promise<T> {
   const baseUrl = (opts.baseUrl ?? "https://openrouter.ai/api/v1").replace(/\/$/, "");
   const fetchImpl = opts.fetchImpl ?? fetch;
   const timeoutMs = opts.timeoutMs ?? 60_000;
 
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${opts.apiKey}`,
+    "Content-Type": "application/json",
+  };
+  if (opts.referer) headers["HTTP-Referer"] = opts.referer;
+  if (opts.title) headers["X-Title"] = opts.title;
+
+  const res = await fetchImpl(`${baseUrl}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  const text = await res.text();
+  let raw: T;
+  try {
+    raw = JSON.parse(text) as T;
+  } catch {
+    throw new Error(`OpenRouter returned non-JSON (${res.status}): ${text.slice(0, 200)}`);
+  }
+  if (!res.ok || raw.error) {
+    throw new Error(`OpenRouter error ${raw.error?.code ?? res.status}: ${raw.error?.message ?? text.slice(0, 200)}`);
+  }
+  return raw;
+}
+
+export function createOpenRouterClient(opts: OpenRouterOptions): LlmClient {
   return {
     async chat(req) {
       const body: Record<string, unknown> = {
@@ -87,30 +119,7 @@ export function createOpenRouterClient(opts: OpenRouterOptions): LlmClient {
         body.tool_choice = req.toolChoice ?? "auto";
       }
 
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${opts.apiKey}`,
-        "Content-Type": "application/json",
-      };
-      if (opts.referer) headers["HTTP-Referer"] = opts.referer;
-      if (opts.title) headers["X-Title"] = opts.title;
-
-      const res = await fetchImpl(`${baseUrl}/chat/completions`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(timeoutMs),
-      });
-
-      const text = await res.text();
-      let raw: RawResponse;
-      try {
-        raw = JSON.parse(text) as RawResponse;
-      } catch {
-        throw new Error(`OpenRouter returned non-JSON (${res.status}): ${text.slice(0, 200)}`);
-      }
-      if (!res.ok || raw.error) {
-        throw new Error(`OpenRouter error ${raw.error?.code ?? res.status}: ${raw.error?.message ?? text.slice(0, 200)}`);
-      }
+      const raw = await postJson<RawResponse>(opts, "/chat/completions", body);
       const choice = raw.choices?.[0];
       if (!choice?.message) throw new Error("OpenRouter response had no choices");
 
@@ -123,6 +132,61 @@ export function createOpenRouterClient(opts: OpenRouterOptions): LlmClient {
           totalTokens: raw.usage?.total_tokens ?? 0,
           cost: raw.usage?.cost ?? 0,
         },
+        model: raw.model ?? req.model,
+      };
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Embeddings. Same endpoint family (`/embeddings`, OpenAI-compatible); OpenRouter does not list
+// embedding models under `/models`, but `google/gemini-embedding-001` is served and priced.
+// ---------------------------------------------------------------------------
+
+export interface EmbedRequest {
+  model: string;
+  input: string[];
+  /** Matryoshka truncation requested from the server; omit for the model's native width. */
+  dimensions?: number;
+}
+
+export interface EmbedResponse {
+  /** One vector per input, in input order. Not unit-length: callers normalise. */
+  vectors: number[][];
+  usage: { promptTokens: number; cost: number };
+  model: string;
+}
+
+export interface Embedder {
+  embed(req: EmbedRequest): Promise<EmbedResponse>;
+}
+
+interface RawEmbedResponse extends RawError {
+  model?: string;
+  data?: Array<{ index?: number; embedding?: number[] }>;
+  usage?: { prompt_tokens?: number; cost?: number };
+}
+
+export function createOpenRouterEmbedder(opts: OpenRouterOptions): Embedder {
+  return {
+    async embed(req) {
+      const body: Record<string, unknown> = { model: req.model, input: req.input, usage: { include: true } };
+      if (req.dimensions !== undefined) body.dimensions = req.dimensions;
+
+      const raw = await postJson<RawEmbedResponse>(opts, "/embeddings", body);
+      const data = raw.data ?? [];
+      if (data.length !== req.input.length) {
+        throw new Error(`OpenRouter returned ${data.length} embeddings for ${req.input.length} inputs`);
+      }
+      const vectors: number[][] = new Array<number[]>(req.input.length);
+      data.forEach((d, i) => {
+        const idx = d.index ?? i;
+        if (!d.embedding || idx < 0 || idx >= vectors.length) throw new Error("OpenRouter embedding response malformed");
+        vectors[idx] = d.embedding;
+      });
+      return {
+        vectors,
+        usage: { promptTokens: raw.usage?.prompt_tokens ?? 0, cost: raw.usage?.cost ?? 0 },
         model: raw.model ?? req.model,
       };
     },

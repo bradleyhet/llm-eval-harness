@@ -1,17 +1,30 @@
 /**
- * Retrieval regression gate.
- * Chunks the corpus, builds the retriever, runs every labelled query and reports
+ * Retrieval regression gate and retriever comparison.
+ * Chunks the corpus, builds each requested retriever, runs every labelled query and reports
  * recall@k, hit@1/3/k, MRR and precision@k overall and by difficulty.
- * Writes results/retrieval-metrics.json and exits 1 if below evals/data/thresholds.json.
+ * Writes results/retrieval-metrics.json (bm25) or results/retrieval-metrics-<name>.json and
+ * exits 1 if any retriever is below evals/data/thresholds.json.
  *
- *   bun scripts/retrieval-metrics.ts [--k 6] [--min-score 0] [--retriever bm25] [--verbose]
+ *   bun scripts/retrieval-metrics.ts [--k 6] [--min-score 0] [--retriever bm25,embedding,hybrid] [--verbose]
+ *
+ * `embedding` and `hybrid` read precomputed vectors from evals/data/embeddings.json. Texts missing
+ * from that cache are fetched through OpenRouter when OPENROUTER_API_KEY is set (Bun loads .env)
+ * and the cache is rewritten; without a key the run fails and says what to do.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
+import { createOpenRouterEmbedder } from "../src/assistant/openrouter.js";
 import { loadCorpus } from "../src/retrieval/chunk.js";
+import {
+  EMBEDDING_DIMENSIONS,
+  EMBEDDING_MODEL,
+  EmbeddingCache,
+  createEmbeddingRetriever,
+  normalise,
+} from "../src/retrieval/embedding-retriever.js";
 import { hitAtK, mean, precisionAtK, recallAtK, reciprocalRank } from "../src/retrieval/metrics.js";
-import { createBm25Retriever, type Retriever } from "../src/retrieval/retriever.js";
+import { createBm25Retriever, createHybridRetriever, indexText, type Retriever } from "../src/retrieval/retriever.js";
 
 interface Label {
   id: string;
@@ -42,6 +55,9 @@ interface Aggregate {
   precision: number;
 }
 
+const RETRIEVER_NAMES = ["bm25", "embedding", "hybrid"] as const;
+type RetrieverName = (typeof RETRIEVER_NAMES)[number];
+
 const { values: args } = parseArgs({
   options: {
     k: { type: "string", default: "6" },
@@ -50,7 +66,7 @@ const { values: args } = parseArgs({
     verbose: { type: "boolean", default: false },
     corpus: { type: "string", default: "corpus" },
     labels: { type: "string", default: "evals/data/retrieval-labels.yaml" },
-    out: { type: "string", default: "results/retrieval-metrics.json" },
+    out: { type: "string" },
   },
 });
 
@@ -58,43 +74,76 @@ const k = Number(args.k);
 const minScore = Number(args["min-score"]);
 const corpusDir = args.corpus ?? "corpus";
 const labelsPath = args.labels ?? "evals/data/retrieval-labels.yaml";
-const outPath = args.out ?? "results/retrieval-metrics.json";
+
+const names = (args.retriever ?? "bm25").split(",").map((s) => s.trim()).filter(Boolean);
+const unknown = names.filter((n) => !(RETRIEVER_NAMES as ReadonlyArray<string>).includes(n));
+if (unknown.length > 0 || names.length === 0) {
+  console.error(`Unknown retriever ${unknown.join(", ")}. Choose from ${RETRIEVER_NAMES.join(", ")} (comma-separated).`);
+  process.exit(1);
+}
+if (args.out !== undefined && names.length > 1) {
+  console.error("--out applies to a single retriever; drop it to write one file per retriever.");
+  process.exit(1);
+}
 
 const chunks = loadCorpus(corpusDir);
 const chunkIds = new Set(chunks.map((c) => c.id));
 const labels = parseYaml(readFileSync(labelsPath, "utf8")) as Label[];
 const thresholds = JSON.parse(readFileSync("evals/data/thresholds.json", "utf8")) as Record<string, number>;
 
-let retriever: Retriever;
-if (args.retriever === "bm25") {
-  retriever = createBm25Retriever(chunks);
-} else {
-  console.error(`Unknown retriever ${args.retriever}`);
-  process.exit(1);
-}
-
-const missing = labels.flatMap((l) =>
+const missingIds = labels.flatMap((l) =>
   l.relevantChunkIds.filter((id) => !chunkIds.has(id)).map((id) => `${l.id}: ${id}`),
 );
-if (missing.length > 0) {
-  console.error(`Labels reference ${missing.length} chunk id(s) that do not exist:\n  ${missing.join("\n  ")}`);
+if (missingIds.length > 0) {
+  console.error(`Labels reference ${missingIds.length} chunk id(s) that do not exist:\n  ${missingIds.join("\n  ")}`);
   process.exit(1);
 }
 
-const rows: Row[] = labels.map((l) => {
-  const retrieved = retriever.search(l.query, { k, minScore }).map((c) => c.id);
-  return {
-    id: l.id,
-    difficulty: l.difficulty,
-    recall: recallAtK(retrieved, l.relevantChunkIds, k),
-    hit1: hitAtK(retrieved, l.relevantChunkIds, 1),
-    hit3: hitAtK(retrieved, l.relevantChunkIds, 3),
-    hitK: hitAtK(retrieved, l.relevantChunkIds, k),
-    rr: reciprocalRank(retrieved, l.relevantChunkIds),
-    precision: precisionAtK(retrieved, l.relevantChunkIds, k),
-    retrieved,
-  };
-});
+/** Load the vector cache and fill any gaps through OpenRouter. Only called when a retriever needs it. */
+async function loadEmbeddings(): Promise<EmbeddingCache> {
+  const cache = EmbeddingCache.load();
+  const texts = [...chunks.map(indexText), ...labels.map((l) => l.query)];
+  const missing = cache.missing(texts);
+  if (missing.length === 0) {
+    console.log(`Embeddings: ${cache.size} cached vectors (${EMBEDDING_MODEL}, ${EMBEDDING_DIMENSIONS}d) cover all ${texts.length} texts.\n`);
+    return cache;
+  }
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    console.error(
+      `${missing.length} of ${texts.length} texts have no vector in ${cache.path}. ` +
+        "Set OPENROUTER_API_KEY and re-run locally to refresh the cache, then commit it.",
+    );
+    process.exit(1);
+  }
+  const embedder = createOpenRouterEmbedder({ apiKey, title: "llm-eval-harness" });
+  let cost = 0;
+  let tokens = 0;
+  const batchSize = 32;
+  for (let i = 0; i < missing.length; i += batchSize) {
+    const batch = missing.slice(i, i + batchSize);
+    const res = await embedder.embed({ model: EMBEDDING_MODEL, input: batch, dimensions: EMBEDDING_DIMENSIONS });
+    batch.forEach((text, j) => cache.set(text, normalise(res.vectors[j] ?? [])));
+    cost += res.usage.cost;
+    tokens += res.usage.promptTokens;
+  }
+  cache.save();
+  console.log(
+    `Embeddings: fetched ${missing.length} vectors (${tokens} tokens, $${cost.toFixed(4)}); cache now ${cache.size} vectors in ${cache.path}.\n`,
+  );
+  return cache;
+}
+
+const needsEmbeddings = names.some((n) => n !== "bm25");
+const cache = needsEmbeddings ? await loadEmbeddings() : undefined;
+
+function buildRetriever(name: RetrieverName): Retriever {
+  const bm25 = createBm25Retriever(chunks);
+  if (name === "bm25") return bm25;
+  const embedding = createEmbeddingRetriever(chunks, (text) => cache!.get(text));
+  if (name === "embedding") return embedding;
+  return createHybridRetriever([bm25, embedding]);
+}
 
 function aggregate(subset: Row[]): Aggregate {
   return {
@@ -108,55 +157,79 @@ function aggregate(subset: Row[]): Aggregate {
   };
 }
 
-const overall = aggregate(rows);
 const difficulties = ["easy", "paraphrase", "distractor"] as const;
-const byDifficulty = Object.fromEntries(difficulties.map((d) => [d, aggregate(rows.filter((r) => r.difficulty === d))]));
-
 const fmt = (v: number): string => v.toFixed(3);
 const line = (name: string, a: Aggregate): string =>
   `| ${name} | ${a.n} | ${fmt(a.recall)} | ${fmt(a.hit1)} | ${fmt(a.hit3)} | ${fmt(a.hitK)} | ${fmt(a.mrr)} | ${fmt(a.precision)} |`;
 
-console.log(`Retriever: ${retriever.name}  chunks: ${chunks.length}  queries: ${labels.length}  k=${k}  minScore=${minScore}\n`);
-console.log(`| slice | n | recall@${k} | hit@1 | hit@3 | hit@${k} | MRR | precision@${k} |`);
-console.log("|---|---|---|---|---|---|---|---|");
-console.log(line("overall", overall));
-for (const [d, a] of Object.entries(byDifficulty)) console.log(line(d, a));
+mkdirSync("results", { recursive: true });
+const failures: string[] = [];
 
-const misses = rows.filter((r) => !r.hitK || (args.verbose && !r.hit1));
-if (misses.length > 0) {
-  console.log(`\n${args.verbose ? "Queries not hit at rank 1" : `Queries with no relevant chunk in top ${k}`}: ${misses.length}`);
-  for (const r of misses) {
-    const label = labels.find((l) => l.id === r.id)!;
-    console.log(`  ${r.id} [${r.difficulty}] "${label.query}"`);
-    console.log(`    wanted: ${label.relevantChunkIds.join(", ")}`);
-    console.log(`    got:    ${r.retrieved.join(", ") || "(nothing)"}`);
+for (const name of names as RetrieverName[]) {
+  const retriever = buildRetriever(name);
+  const rows: Row[] = labels.map((l) => {
+    const retrieved = retriever.search(l.query, { k, minScore }).map((c) => c.id);
+    return {
+      id: l.id,
+      difficulty: l.difficulty,
+      recall: recallAtK(retrieved, l.relevantChunkIds, k),
+      hit1: hitAtK(retrieved, l.relevantChunkIds, 1),
+      hit3: hitAtK(retrieved, l.relevantChunkIds, 3),
+      hitK: hitAtK(retrieved, l.relevantChunkIds, k),
+      rr: reciprocalRank(retrieved, l.relevantChunkIds),
+      precision: precisionAtK(retrieved, l.relevantChunkIds, k),
+      retrieved,
+    };
+  });
+
+  const overall = aggregate(rows);
+  const byDifficulty = Object.fromEntries(difficulties.map((d) => [d, aggregate(rows.filter((r) => r.difficulty === d))]));
+
+  const detail = name === "bm25" ? "" : ` (${EMBEDDING_MODEL}, ${EMBEDDING_DIMENSIONS}d, cosine${name === "hybrid" ? ", RRF with bm25" : ""})`;
+  console.log(`Retriever: ${retriever.name}${detail}  chunks: ${chunks.length}  queries: ${labels.length}  k=${k}  minScore=${minScore}\n`);
+  console.log(`| slice | n | recall@${k} | hit@1 | hit@3 | hit@${k} | MRR | precision@${k} |`);
+  console.log("|---|---|---|---|---|---|---|---|");
+  console.log(line("overall", overall));
+  for (const [d, a] of Object.entries(byDifficulty)) console.log(line(d, a));
+
+  const misses = rows.filter((r) => !r.hitK || (args.verbose && !r.hit1));
+  if (misses.length > 0) {
+    console.log(`\n${args.verbose ? "Queries not hit at rank 1" : `Queries with no relevant chunk in top ${k}`}: ${misses.length}`);
+    for (const r of misses) {
+      const label = labels.find((l) => l.id === r.id)!;
+      console.log(`  ${r.id} [${r.difficulty}] "${label.query}"`);
+      console.log(`    wanted: ${label.relevantChunkIds.join(", ")}`);
+      console.log(`    got:    ${r.retrieved.join(", ") || "(nothing)"}`);
+    }
+  }
+
+  const outPath = args.out ?? (name === "bm25" ? "results/retrieval-metrics.json" : `results/retrieval-metrics-${name}.json`);
+  const report = {
+    generatedAt: new Date().toISOString(),
+    retriever: retriever.name,
+    ...(name === "bm25" ? {} : { embeddingModel: EMBEDDING_MODEL, embeddingDimensions: EMBEDDING_DIMENSIONS }),
+    k,
+    minScore,
+    chunks: chunks.length,
+    queries: labels.length,
+    overall: { ...overall, [`recall_at_${k}`]: overall.recall },
+    byDifficulty,
+    rows,
+  };
+  writeFileSync(outPath, JSON.stringify(report, null, 2));
+  console.log(`\nWrote ${outPath}.\n`);
+
+  const recallThreshold = thresholds[`recall_at_${k}`];
+  if (recallThreshold !== undefined && overall.recall < recallThreshold) {
+    failures.push(`${name}: recall_at_${k} ${fmt(overall.recall)} < ${recallThreshold}`);
+  }
+  if (thresholds.mrr !== undefined && overall.mrr < thresholds.mrr) {
+    failures.push(`${name}: mrr ${fmt(overall.mrr)} < ${thresholds.mrr}`);
   }
 }
 
-mkdirSync("results", { recursive: true });
-const report = {
-  generatedAt: new Date().toISOString(),
-  retriever: retriever.name,
-  k,
-  minScore,
-  chunks: chunks.length,
-  queries: labels.length,
-  overall: { ...overall, [`recall_at_${k}`]: overall.recall },
-  byDifficulty,
-  rows,
-};
-writeFileSync(outPath, JSON.stringify(report, null, 2));
-
-const failures: string[] = [];
-const recallThreshold = thresholds[`recall_at_${k}`];
-if (recallThreshold !== undefined && overall.recall < recallThreshold) {
-  failures.push(`recall_at_${k} ${fmt(overall.recall)} < ${recallThreshold}`);
-}
-if (thresholds.mrr !== undefined && overall.mrr < thresholds.mrr) {
-  failures.push(`mrr ${fmt(overall.mrr)} < ${thresholds.mrr}`);
-}
 if (failures.length > 0) {
-  console.error(`\nBelow threshold: ${failures.join("; ")}`);
+  console.error(`Below threshold: ${failures.join("; ")}`);
   process.exit(1);
 }
-console.log(`\nWrote ${outPath}. All thresholds met.`);
+console.log("All thresholds met.");

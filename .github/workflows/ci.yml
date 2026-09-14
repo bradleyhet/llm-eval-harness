@@ -30,6 +30,8 @@ jobs:
       - run: npm test
       - name: Retrieval regression gate
         run: npm run retrieval:metrics
+      - name: Retriever comparison from the committed vector cache (no key)
+        run: npm run retrieval:metrics -- --retriever embedding,hybrid
       - name: Retrieval evals through promptfoo (no LLM, no key)
         run: npx promptfoo eval -c promptfooconfig.retrieval.yaml --no-cache -o results/retrieval.json
       - uses: actions/upload-artifact@v4
@@ -37,7 +39,7 @@ jobs:
         with:
           name: retrieval-metrics
           path: |
-            results/retrieval-metrics.json
+            results/retrieval-metrics*.json
             results/retrieval.json
 
   smoke-eval:

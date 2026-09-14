@@ -1,19 +1,21 @@
 {
-  "generatedAt": "2026-09-14T07:14:50.700Z",
-  "retriever": "bm25",
+  "generatedAt": "2026-09-14T07:16:06.073Z",
+  "retriever": "hybrid",
+  "embeddingModel": "google/gemini-embedding-001",
+  "embeddingDimensions": 768,
   "k": 6,
   "minScore": 0,
   "chunks": 124,
   "queries": 47,
   "overall": {
     "n": 47,
-    "recall": 0.8936170212765957,
-    "hit1": 0.7872340425531915,
-    "hit3": 0.851063829787234,
-    "hitK": 0.9361702127659575,
-    "mrr": 0.8329787234042555,
-    "precision": 0.18794326241134754,
-    "recall_at_6": 0.8936170212765957
+    "recall": 0.9574468085106383,
+    "hit1": 0.8085106382978723,
+    "hit3": 0.9574468085106383,
+    "hitK": 0.9787234042553191,
+    "mrr": 0.8847517730496453,
+    "precision": 0.20567375886524816,
+    "recall_at_6": 0.9574468085106383
   },
   "byDifficulty": {
     "easy": {
@@ -22,26 +24,26 @@
       "hit1": 0.875,
       "hit3": 1,
       "hitK": 1,
-      "mrr": 0.9270833333333334,
+      "mrr": 0.9270833333333333,
       "precision": 0.23958333333333326
     },
     "paraphrase": {
       "n": 19,
-      "recall": 0.7894736842105263,
-      "hit1": 0.6842105263157895,
-      "hit3": 0.7368421052631579,
-      "hitK": 0.8421052631578947,
-      "mrr": 0.7298245614035087,
-      "precision": 0.15789473684210523
+      "recall": 0.8947368421052632,
+      "hit1": 0.7368421052631579,
+      "hit3": 0.9473684210526315,
+      "hitK": 0.9473684210526315,
+      "mrr": 0.8421052631578947,
+      "precision": 0.1842105263157894
     },
     "distractor": {
       "n": 12,
-      "recall": 0.9166666666666666,
+      "recall": 1,
       "hit1": 0.8333333333333334,
-      "hit3": 0.8333333333333334,
+      "hit3": 0.9166666666666666,
       "hitK": 1,
-      "mrr": 0.8708333333333332,
-      "precision": 0.16666666666666666
+      "mrr": 0.8958333333333334,
+      "precision": 0.19444444444444442
     }
   },
   "rows": [
@@ -56,28 +58,28 @@
       "precision": 0.3333333333333333,
       "retrieved": [
         "fees-and-limits#everyday-account-fees",
-        "account-types#joint-everyday-account",
-        "fees-and-limits#saver-account-fees",
         "account-types#everyday-account",
-        "joint-accounts#cards-and-fees-on-a-joint-account",
-        "atm-access#depositing-cash"
+        "fees-and-limits#saver-account-fees",
+        "account-types#saver-account",
+        "account-types#joint-everyday-account",
+        "joint-accounts#cards-and-fees-on-a-joint-account"
       ]
     },
     {
       "id": "ret-002",
       "difficulty": "easy",
       "recall": 1,
-      "hit1": false,
+      "hit1": true,
       "hit3": true,
       "hitK": true,
-      "rr": 0.5,
+      "rr": 1,
       "precision": 0.3333333333333333,
       "retrieved": [
-        "statements#interest-summary",
         "account-types#saver-account",
+        "statements#interest-summary",
         "fees-and-limits#saver-account-fees",
         "closing-an-account#closing-a-saver-account",
-        "foreign-exchange#how-the-rate-is-set",
+        "opening-an-account#adding-a-saver-later",
         "account-types#everyday-account"
       ]
     },
@@ -92,11 +94,11 @@
       "precision": 0.3333333333333333,
       "retrieved": [
         "atm-access#daily-withdrawal-limit",
-        "fees-and-limits#card-and-atm-limits",
         "atm-access#cardless-withdrawals",
+        "fees-and-limits#card-and-atm-limits",
         "atm-access#depositing-cash",
-        "international-transfers#daily-limit",
-        "atm-access#overseas-atms"
+        "atm-access#overseas-atms",
+        "international-transfers#daily-limit"
       ]
     },
     {
@@ -110,11 +112,11 @@
       "precision": 0.3333333333333333,
       "retrieved": [
         "cards#physical-card",
-        "opening-an-account#getting-your-account-details",
         "card-replacement#standard-replacement",
-        "international-transfers#overview",
+        "opening-an-account#getting-your-account-details",
         "kyc-process#overview",
-        "chargeback-timelines#overview"
+        "card-replacement#express-replacement",
+        "cards#setting-and-changing-your-pin"
       ]
     },
     {
@@ -129,9 +131,9 @@
       "retrieved": [
         "kyc-documents#overview",
         "opening-an-account#what-you-need-before-you-start",
-        "kyc-documents#secondary-documents",
-        "kyc-documents#documents-for-customers-aged-16-and-17",
         "kyc-documents#primary-photo-identification",
+        "kyc-documents#name-and-address-matching",
+        "kyc-documents#secondary-documents",
         "opening-an-account#the-sign-up-steps"
       ]
     },
@@ -139,18 +141,18 @@
       "id": "ret-006",
       "difficulty": "easy",
       "recall": 1,
-      "hit1": true,
+      "hit1": false,
       "hit3": true,
       "hitK": true,
-      "rr": 1,
+      "rr": 0.5,
       "precision": 0.3333333333333333,
       "retrieved": [
-        "fees-and-limits#international-transfer-limits",
         "international-transfers#overview",
-        "international-transfers#cancelling-or-recalling-a-transfer",
+        "fees-and-limits#international-transfer-limits",
         "international-transfers#fees-and-exchange-rate",
-        "fees-and-limits#other-fees",
-        "international-transfers#daily-limit"
+        "international-transfers#cancelling-or-recalling-a-transfer",
+        "international-transfers#daily-limit",
+        "fees-and-limits#other-fees"
       ]
     },
     {
@@ -164,11 +166,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "card-controls#freezing-and-unfreezing",
-        "scam-reporting#what-corella-bank-does-next",
         "card-replacement#lost-card",
-        "joint-accounts#visibility-and-notifications",
+        "lockout-and-recovery#suspected-account-takeover",
         "disputes#unauthorised-transactions",
-        "lockout-and-recovery#suspected-account-takeover"
+        "card-controls#overview",
+        "card-replacement#damaged-card"
       ]
     },
     {
@@ -184,8 +186,8 @@
         "scam-reporting#how-to-report-a-scam",
         "scam-reporting#reporting-impersonation-attempts",
         "scam-reporting#scams-versus-unauthorised-transactions",
-        "scam-reporting#reimbursement",
         "scam-reporting#overview",
+        "scam-reporting#reimbursement",
         "scam-reporting#what-corella-bank-does-next"
       ]
     },
@@ -201,10 +203,10 @@
       "retrieved": [
         "kyc-process#manual-review",
         "kyc-process#overview",
-        "opening-an-account#starter-limits-before-verification",
         "kyc-process#automated-verification",
+        "opening-an-account#starter-limits-before-verification",
         "kyc-process#if-verification-fails",
-        "kyc-process#privacy-of-your-documents"
+        "kyc-process#ongoing-verification-checks"
       ]
     },
     {
@@ -218,11 +220,11 @@
       "precision": 0.3333333333333333,
       "retrieved": [
         "statements#paper-statements",
-        "fees-and-limits#other-fees",
         "statements#digital-statements",
-        "kyc-documents#name-and-address-matching",
-        "closing-an-account#before-you-close",
-        "statements#overview"
+        "fees-and-limits#other-fees",
+        "statements#interest-summary",
+        "statements#overview",
+        "fees-and-limits#everyday-account-fees"
       ]
     },
     {
@@ -237,10 +239,10 @@
       "retrieved": [
         "foreign-exchange#rate-alerts",
         "foreign-exchange#how-the-rate-is-set",
-        "foreign-exchange#overview",
         "foreign-exchange#rate-lock-on-transfers",
-        "atm-access#overseas-atms",
-        "foreign-exchange#weekend-and-public-holiday-rates"
+        "foreign-exchange#overview",
+        "foreign-exchange#weekend-and-public-holiday-rates",
+        "foreign-exchange#supported-currencies"
       ]
     },
     {
@@ -257,8 +259,8 @@
         "direct-debits#overview",
         "direct-debits#cancellation-fee",
         "direct-debits#viewing-your-direct-debits",
-        "direct-debits#setting-up-a-direct-debit",
-        "direct-debits#disputing-an-unauthorised-direct-debit"
+        "direct-debits#disputing-an-unauthorised-direct-debit",
+        "direct-debits#setting-up-a-direct-debit"
       ]
     },
     {
@@ -272,10 +274,10 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "account-types#getting-help",
-        "kyc-process#privacy-of-your-documents",
-        "scam-reporting#how-to-report-a-scam",
-        "foreign-exchange#supported-currencies",
-        "cards#setting-and-changing-your-pin",
+        "kyc-process#if-verification-fails",
+        "chargeback-timelines#initial-review",
+        "security-and-2fa#app-passcode-and-biometrics",
+        "lockout-and-recovery#app-passcode-lockout",
         "closing-an-account#after-closure"
       ]
     },
@@ -292,9 +294,9 @@
         "security-and-2fa#new-device-sign-in",
         "lockout-and-recovery#lost-or-replaced-phone",
         "security-and-2fa#two-factor-approval",
-        "kyc-process#ongoing-verification-checks",
-        "joint-accounts#overview",
-        "kyc-documents#keeping-your-details-current"
+        "lockout-and-recovery#forgotten-passcode",
+        "lockout-and-recovery#suspected-account-takeover",
+        "kyc-process#ongoing-verification-checks"
       ]
     },
     {
@@ -310,9 +312,9 @@
         "closing-an-account#inactive-accounts",
         "closing-an-account#overview",
         "lockout-and-recovery#overview",
-        "opening-an-account#overview",
-        "joint-accounts#overview",
-        "disputes#overview"
+        "closing-an-account#closing-a-sole-account",
+        "account-types#everyday-account",
+        "joint-accounts#removing-a-holder-or-closing-a-joint-account"
       ]
     },
     {
@@ -326,10 +328,10 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "atm-access#cardless-withdrawals",
-        "fees-and-limits#card-and-atm-limits",
+        "atm-access#corella-cash-network-atms",
         "atm-access#daily-withdrawal-limit",
         "atm-access#overseas-atms",
-        "atm-access#corella-cash-network-atms",
+        "fees-and-limits#card-and-atm-limits",
         "atm-access#other-australian-atms"
       ]
     },
@@ -344,11 +346,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "disputes#when-to-lodge-a-dispute",
-        "cards#using-the-card-overseas",
-        "atm-access#overseas-atms",
+        "disputes#unauthorised-transactions",
+        "card-controls#merchant-locks",
         "card-controls#blocking-transaction-types",
-        "opening-an-account#getting-your-account-details",
-        "direct-debits#dishonour-fee"
+        "card-controls#setting-a-lower-purchase-limit",
+        "chargeback-timelines#resolution-window"
       ]
     },
     {
@@ -362,11 +364,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "lockout-and-recovery#card-pin-lockout",
-        "card-replacement#damaged-card",
         "lockout-and-recovery#app-passcode-lockout",
-        "disputes#overview",
+        "card-replacement#damaged-card",
         "card-replacement#standard-replacement",
-        "opening-an-account#getting-your-account-details"
+        "disputes#merchant-disputes",
+        "lockout-and-recovery#overview"
       ]
     },
     {
@@ -380,29 +382,29 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "lockout-and-recovery#lost-or-replaced-phone",
-        "cards#purchase-limits",
-        "kyc-documents#primary-photo-identification",
-        "cards#setting-and-changing-your-pin",
+        "security-and-2fa#app-passcode-and-biometrics",
+        "lockout-and-recovery#forgotten-passcode",
+        "card-replacement#standard-replacement",
         "security-and-2fa#text-message-codes",
-        "statements#overview"
+        "kyc-documents#primary-photo-identification"
       ]
     },
     {
       "id": "ret-020",
       "difficulty": "paraphrase",
       "recall": 0.5,
-      "hit1": false,
+      "hit1": true,
       "hit3": true,
       "hitK": true,
-      "rr": 0.5,
+      "rr": 1,
       "precision": 0.16666666666666666,
       "retrieved": [
-        "card-replacement#damaged-card",
         "cards#using-the-card-overseas",
-        "cards#virtual-card",
-        "card-controls#merchant-locks",
-        "disputes#unauthorised-transactions",
-        "direct-debits#setting-up-a-direct-debit"
+        "card-replacement#damaged-card",
+        "atm-access#overseas-atms",
+        "international-transfers#fees-and-exchange-rate",
+        "atm-access#other-australian-atms",
+        "atm-access#corella-cash-network-atms"
       ]
     },
     {
@@ -416,29 +418,29 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "card-replacement#express-replacement",
+        "card-replacement#damaged-card",
+        "card-controls#freezing-and-unfreezing",
+        "card-replacement#standard-replacement",
         "lockout-and-recovery#lost-or-replaced-phone",
-        "security-and-2fa#text-message-codes",
-        "kyc-process#ongoing-verification-checks",
-        "security-and-2fa#new-device-sign-in",
-        "card-controls#freezing-and-unfreezing"
+        "card-replacement#stolen-card"
       ]
     },
     {
       "id": "ret-022",
       "difficulty": "paraphrase",
       "recall": 1,
-      "hit1": true,
+      "hit1": false,
       "hit3": true,
       "hitK": true,
-      "rr": 1,
+      "rr": 0.5,
       "precision": 0.16666666666666666,
       "retrieved": [
+        "fees-and-limits#saver-account-fees",
         "opening-an-account#what-you-need-before-you-start",
-        "foreign-exchange#rate-lock-on-transfers",
-        "scam-reporting#how-to-report-a-scam",
+        "opening-an-account#starter-limits-before-verification",
         "atm-access#depositing-cash",
-        "statements#overview",
-        "fees-and-limits#saver-account-fees"
+        "fees-and-limits#overview",
+        "opening-an-account#the-sign-up-steps"
       ]
     },
     {
@@ -453,10 +455,10 @@
       "retrieved": [
         "joint-accounts#opening-a-joint-account",
         "joint-accounts#overview",
-        "opening-an-account#what-you-need-before-you-start",
-        "atm-access#corella-cash-network-atms",
-        "security-and-2fa#text-message-codes",
-        "opening-an-account#getting-your-account-details"
+        "closing-an-account#closing-a-joint-account",
+        "joint-accounts#signing-rules",
+        "kyc-documents#secondary-documents",
+        "closing-an-account#closing-a-sole-account"
       ]
     },
     {
@@ -471,10 +473,10 @@
       "retrieved": [
         "security-and-2fa#text-message-codes",
         "scam-reporting#reporting-impersonation-attempts",
-        "scam-reporting#scams-versus-unauthorised-transactions",
         "security-and-2fa#keeping-your-account-safe",
+        "scam-reporting#scams-versus-unauthorised-transactions",
         "security-and-2fa#new-device-sign-in",
-        "disputes#merchant-disputes"
+        "scam-reporting#overview"
       ]
     },
     {
@@ -489,28 +491,28 @@
       "retrieved": [
         "atm-access#depositing-cash",
         "statements#transaction-notes-and-receipts",
-        "statements#exporting-transactions",
-        "closing-an-account#closing-a-saver-account",
-        "joint-accounts#cards-and-fees-on-a-joint-account",
-        "account-types#everyday-account"
+        "fees-and-limits#everyday-account-fees",
+        "account-types#everyday-account",
+        "closing-an-account#inactive-accounts",
+        "atm-access#corella-cash-network-atms"
       ]
     },
     {
       "id": "ret-026",
       "difficulty": "paraphrase",
-      "recall": 0.5,
-      "hit1": false,
-      "hit3": false,
+      "recall": 1,
+      "hit1": true,
+      "hit3": true,
       "hitK": true,
-      "rr": 0.2,
-      "precision": 0.16666666666666666,
+      "rr": 1,
+      "precision": 0.3333333333333333,
       "retrieved": [
-        "lockout-and-recovery#overview",
-        "account-types#overview",
-        "chargeback-timelines#resolution-window",
-        "direct-debits#cancellation-fee",
         "opening-an-account#adding-a-saver-later",
-        "international-transfers#daily-limit"
+        "account-types#overview",
+        "account-types#saver-account",
+        "opening-an-account#starter-limits-before-verification",
+        "lockout-and-recovery#overview",
+        "chargeback-timelines#resolution-window"
       ]
     },
     {
@@ -524,11 +526,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "kyc-process#manual-review",
-        "kyc-documents#primary-photo-identification",
         "kyc-documents#documents-for-customers-aged-16-and-17",
-        "statements#transaction-notes-and-receipts",
-        "scam-reporting#reporting-impersonation-attempts",
-        "scam-reporting#overview"
+        "kyc-process#overview",
+        "kyc-documents#name-and-address-matching",
+        "kyc-documents#primary-photo-identification",
+        "kyc-process#automated-verification"
       ]
     },
     {
@@ -536,17 +538,17 @@
       "difficulty": "paraphrase",
       "recall": 1,
       "hit1": false,
-      "hit3": false,
+      "hit3": true,
       "hitK": true,
-      "rr": 0.16666666666666666,
+      "rr": 0.5,
       "precision": 0.16666666666666666,
       "retrieved": [
-        "kyc-documents#secondary-documents",
         "direct-debits#cancelling-a-direct-debit",
-        "kyc-process#if-verification-fails",
-        "scam-reporting#reporting-impersonation-attempts",
-        "direct-debits#dishonour-fee",
-        "card-controls#merchant-locks"
+        "card-controls#merchant-locks",
+        "disputes#overview",
+        "direct-debits#viewing-your-direct-debits",
+        "disputes#unauthorised-transactions",
+        "card-replacement#damaged-card"
       ]
     },
     {
@@ -560,11 +562,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "international-transfers#cancelling-or-recalling-a-transfer",
-        "cards#using-the-card-overseas",
         "international-transfers#overview",
-        "card-replacement#express-replacement",
-        "joint-accounts#opening-a-joint-account",
-        "atm-access#overseas-atms"
+        "disputes#merchant-disputes",
+        "scam-reporting#what-corella-bank-does-next",
+        "disputes#when-to-lodge-a-dispute",
+        "disputes#overview"
       ]
     },
     {
@@ -578,11 +580,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "statements#exporting-transactions",
-        "joint-accounts#overview",
+        "closing-an-account#before-you-close",
         "card-controls#setting-a-lower-purchase-limit",
-        "card-controls#overview",
-        "fees-and-limits#overview",
-        "account-types#saver-account"
+        "account-types#saver-account",
+        "joint-accounts#overview",
+        "statements#transaction-notes-and-receipts"
       ]
     },
     {
@@ -596,11 +598,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "direct-debits#dishonour-fee",
-        "atm-access#overview",
-        "account-types#saver-account",
+        "closing-an-account#inactive-accounts",
         "closing-an-account#overview",
-        "international-transfers#cancelling-or-recalling-a-transfer",
-        "security-and-2fa#new-device-sign-in"
+        "cards#overview",
+        "lockout-and-recovery#overview",
+        "atm-access#overview"
       ]
     },
     {
@@ -614,11 +616,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "kyc-process#ongoing-verification-checks",
-        "account-types#saver-account",
-        "direct-debits#viewing-your-direct-debits",
-        "kyc-documents#secondary-documents",
-        "atm-access#overview",
-        "security-and-2fa#new-device-sign-in"
+        "kyc-process#manual-review",
+        "closing-an-account#inactive-accounts",
+        "card-replacement#damaged-card",
+        "kyc-documents#primary-photo-identification",
+        "account-types#saver-account"
       ]
     },
     {
@@ -632,29 +634,29 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "fees-and-limits#saver-account-fees",
-        "fees-and-limits#everyday-account-fees",
         "account-types#saver-account",
-        "account-types#joint-everyday-account",
+        "fees-and-limits#everyday-account-fees",
         "statements#interest-summary",
-        "joint-accounts#cards-and-fees-on-a-joint-account"
+        "closing-an-account#closing-a-saver-account",
+        "opening-an-account#adding-a-saver-later"
       ]
     },
     {
       "id": "ret-034",
       "difficulty": "distractor",
-      "recall": 0.5,
+      "recall": 1,
       "hit1": false,
-      "hit3": false,
+      "hit3": true,
       "hitK": true,
-      "rr": 0.25,
-      "precision": 0.16666666666666666,
+      "rr": 0.5,
+      "precision": 0.3333333333333333,
       "retrieved": [
         "international-transfers#overview",
-        "fees-and-limits#card-and-atm-limits",
-        "atm-access#daily-withdrawal-limit",
         "international-transfers#daily-limit",
-        "card-controls#setting-a-lower-purchase-limit",
-        "fees-and-limits#domestic-transfer-limits"
+        "fees-and-limits#domestic-transfer-limits",
+        "fees-and-limits#international-transfer-limits",
+        "fees-and-limits#card-and-atm-limits",
+        "international-transfers#where-you-can-send-money"
       ]
     },
     {
@@ -669,10 +671,10 @@
       "retrieved": [
         "card-replacement#standard-replacement",
         "card-replacement#express-replacement",
-        "international-transfers#overview",
-        "fees-and-limits#other-fees",
         "card-replacement#lost-card",
-        "card-replacement#damaged-card"
+        "card-replacement#damaged-card",
+        "card-replacement#stolen-card",
+        "fees-and-limits#other-fees"
       ]
     },
     {
@@ -687,10 +689,10 @@
       "retrieved": [
         "chargeback-timelines#resolution-window",
         "chargeback-timelines#overview",
-        "kyc-process#overview",
-        "kyc-process#manual-review",
-        "international-transfers#overview",
-        "international-transfers#cancelling-or-recalling-a-transfer"
+        "chargeback-timelines#initial-review",
+        "chargeback-timelines#merchant-response-window",
+        "chargeback-timelines#outcomes",
+        "kyc-process#overview"
       ]
     },
     {
@@ -704,11 +706,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "card-replacement#stolen-card",
-        "card-replacement#overview",
         "card-replacement#lost-card",
-        "account-types#getting-help",
+        "card-replacement#overview",
         "card-controls#freezing-and-unfreezing",
-        "card-replacement#standard-replacement"
+        "card-replacement#standard-replacement",
+        "disputes#unauthorised-transactions"
       ]
     },
     {
@@ -724,27 +726,27 @@
         "lockout-and-recovery#app-passcode-lockout",
         "lockout-and-recovery#overview",
         "lockout-and-recovery#card-pin-lockout",
-        "card-controls#merchant-locks",
         "security-and-2fa#app-passcode-and-biometrics",
-        "scam-reporting#reporting-impersonation-attempts"
+        "lockout-and-recovery#forgotten-passcode",
+        "lockout-and-recovery#suspected-account-takeover"
       ]
     },
     {
       "id": "ret-039",
       "difficulty": "distractor",
-      "recall": 0.5,
+      "recall": 1,
       "hit1": true,
       "hit3": true,
       "hitK": true,
       "rr": 1,
-      "precision": 0.16666666666666666,
+      "precision": 0.3333333333333333,
       "retrieved": [
         "joint-accounts#removing-a-holder-or-closing-a-joint-account",
         "joint-accounts#opening-a-joint-account",
-        "joint-accounts#cards-and-fees-on-a-joint-account",
-        "account-types#joint-everyday-account",
         "joint-accounts#overview",
-        "closing-an-account#closing-a-sole-account"
+        "closing-an-account#closing-a-joint-account",
+        "closing-an-account#closing-a-sole-account",
+        "closing-an-account#overview"
       ]
     },
     {
@@ -759,9 +761,9 @@
       "retrieved": [
         "direct-debits#cancellation-fee",
         "direct-debits#cancelling-a-direct-debit",
-        "direct-debits#overview",
         "direct-debits#dishonour-fee",
-        "closing-an-account#before-you-close",
+        "direct-debits#overview",
+        "direct-debits#disputing-an-unauthorised-direct-debit",
         "direct-debits#viewing-your-direct-debits"
       ]
     },
@@ -772,15 +774,15 @@
       "hit1": false,
       "hit3": false,
       "hitK": true,
-      "rr": 0.2,
+      "rr": 0.25,
       "precision": 0.16666666666666666,
       "retrieved": [
-        "atm-access#cardless-withdrawals",
         "atm-access#overseas-atms",
         "atm-access#corella-cash-network-atms",
-        "fees-and-limits#card-and-atm-limits",
+        "atm-access#overview",
         "atm-access#other-australian-atms",
-        "atm-access#overview"
+        "atm-access#cardless-withdrawals",
+        "fees-and-limits#card-and-atm-limits"
       ]
     },
     {
@@ -794,11 +796,11 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "direct-debits#disputing-an-unauthorised-direct-debit",
-        "direct-debits#cancellation-fee",
         "disputes#when-to-lodge-a-dispute",
         "direct-debits#overview",
-        "direct-debits#cancelling-a-direct-debit",
-        "direct-debits#viewing-your-direct-debits"
+        "direct-debits#cancellation-fee",
+        "direct-debits#viewing-your-direct-debits",
+        "direct-debits#cancelling-a-direct-debit"
       ]
     },
     {
@@ -816,7 +818,7 @@
         "atm-access#daily-withdrawal-limit",
         "fees-and-limits#card-and-atm-limits",
         "fees-and-limits#international-transfer-limits",
-        "card-controls#setting-a-lower-purchase-limit"
+        "international-transfers#delivery-time"
       ]
     },
     {
@@ -830,27 +832,27 @@
       "precision": 0.16666666666666666,
       "retrieved": [
         "card-replacement#damaged-card",
-        "fees-and-limits#other-fees",
-        "card-replacement#express-replacement",
         "card-replacement#standard-replacement",
-        "card-replacement#overview",
-        "card-replacement#lost-card"
+        "card-replacement#express-replacement",
+        "fees-and-limits#other-fees",
+        "card-replacement#lost-card",
+        "card-replacement#overview"
       ]
     },
     {
       "id": "ret-045",
       "difficulty": "paraphrase",
-      "recall": 0,
+      "recall": 0.5,
       "hit1": false,
-      "hit3": false,
-      "hitK": false,
-      "rr": 0,
-      "precision": 0,
+      "hit3": true,
+      "hitK": true,
+      "rr": 0.5,
+      "precision": 0.16666666666666666,
       "retrieved": [
         "international-transfers#overview",
+        "international-transfers#daily-limit",
+        "international-transfers#where-you-can-send-money",
         "foreign-exchange#how-the-rate-is-set",
-        "atm-access#overseas-atms",
-        "fees-and-limits#card-and-atm-limits",
         "cards#using-the-card-overseas",
         "foreign-exchange#rate-alerts"
       ]
@@ -865,30 +867,30 @@
       "rr": 0,
       "precision": 0,
       "retrieved": [
+        "chargeback-timelines#merchant-response-window",
         "disputes#when-to-lodge-a-dispute",
-        "chargeback-timelines#escalating-a-refused-dispute",
-        "foreign-exchange#rate-lock-on-transfers",
-        "opening-an-account#starter-limits-before-verification",
         "chargeback-timelines#overview",
-        "international-transfers#cancelling-or-recalling-a-transfer"
+        "chargeback-timelines#escalating-a-refused-dispute",
+        "chargeback-timelines#initial-review",
+        "disputes#how-to-lodge-a-dispute"
       ]
     },
     {
       "id": "ret-047",
       "difficulty": "paraphrase",
-      "recall": 0,
+      "recall": 1,
       "hit1": false,
-      "hit3": false,
-      "hitK": false,
-      "rr": 0,
-      "precision": 0,
+      "hit3": true,
+      "hitK": true,
+      "rr": 0.5,
+      "precision": 0.16666666666666666,
       "retrieved": [
-        "kyc-documents#overview",
         "opening-an-account#adding-a-saver-later",
-        "opening-an-account#what-you-need-before-you-start",
+        "opening-an-account#starter-limits-before-verification",
+        "kyc-documents#overview",
         "opening-an-account#the-sign-up-steps",
-        "joint-accounts#opening-a-joint-account",
-        "account-types#joint-everyday-account"
+        "kyc-process#overview",
+        "opening-an-account#what-you-need-before-you-start"
       ]
     }
   ]

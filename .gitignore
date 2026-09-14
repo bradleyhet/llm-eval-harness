@@ -6,6 +6,7 @@ results/*
 !results/.gitkeep
 !results/summary-*.json
 !results/retrieval-metrics.json
+!results/retrieval-metrics-*.json
 *.log
 .DS_Store
 
