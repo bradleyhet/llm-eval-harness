@@ -66,7 +66,11 @@ The whole pipeline is one plain function, `answer()` in `src/assistant/answer.ts
 
 The tools take no customer identifier. The session decides whose data is visible, mirroring row-level security as the only authorisation boundary in a production assistant. Each fixture customer carries canary strings found nowhere else, so any cross-customer leak is detectable by a string scan. [THREAT-MODEL.md](THREAT-MODEL.md) sets out the trust boundaries, the six defence layers, each threat with its control and the evidence for it, and what the model does not cover.
 
-**Why BM25?** The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bit deterministic, so recall@6 and MRR are true regression gates: they run in CI with no model call, no key and no run-to-run variance, and any change in the retrieval numbers is a change in the corpus or the retriever, never in an API. That is what a retrieval baseline is for. That comparison against embedding and hybrid retrieval on the same labelled queries is under [Methodology](#methodology): the embedding retriever wins the paraphrase slice (0.900 against 0.800), which is what the baseline was there to expose, and BM25 stays the CI gate and the retriever in the assistant because it is the one with no external dependency.
+### Why BM25?
+
+BM25 is intentionally used as a deterministic retrieval baseline rather than as a claim about the ideal production retriever. This allows retrieval regressions to be measured independently of embedding models and external APIs. The labelled dataset can subsequently be used to compare BM25, semantic and hybrid retrieval using identical queries.
+
+The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bit deterministic, so recall@6 and MRR are true regression gates: they run in CI with no model call, no key and no run-to-run variance, and any change in the retrieval numbers is a change in the corpus or the retriever, never in an API. That comparison against embedding and hybrid retrieval on the same labelled queries is under [Methodology](#methodology): the embedding retriever wins the paraphrase slice (0.900 against 0.800), which is what the baseline was there to expose, and BM25 stays the CI gate and the retriever in the assistant because it is the one with no external dependency.
 
 ## Engineering decisions
 
