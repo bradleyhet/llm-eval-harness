@@ -105,6 +105,8 @@ The three retrieval misses are the same paraphrase weakness the retrieval baseli
 
 ## Latest numbers
 
+CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml). The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
+
 From the first recorded full run (2026-09-14, local, cache off), details in [RESULTS.md](RESULTS.md):
 
 | | |
