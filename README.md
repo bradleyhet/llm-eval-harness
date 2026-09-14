@@ -4,7 +4,8 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 
 | | |
 |---|---|
-| Cases | 142; 138 pass (97%), the 4 failures are documented known failures |
+| Last full evaluation | 138 of 142 passing (97%); the 4 failures are documented known failures |
+| Current evaluation set | 143 cases, including 48 labelled retrieval queries; 44 tagged smoke gate every push |
 | Retrieval dataset | 48 hand-labelled queries (16 easy, 20 paraphrase, 12 on distractor pairs) |
 | Recall@6 / MRR | 0.896 / 0.826 for BM25, the retriever the assistant runs on; 0.948 / 0.910 for the embedding retriever on the same queries |
 | Known retrieval misses | 3 of 48 for BM25, kept in the suite and listed under Known failures; the embedding retriever hits all three and misses two others |
@@ -18,7 +19,7 @@ The assistant under test answers questions about a fictional Australian neobank,
 
 ## What this demonstrates
 
-- Offline evaluation sets under version control, 142 cases across six categories, with a 44-case smoke tier gating every push.
+- Offline evaluation sets under version control, 143 cases across six categories, with a 44-case smoke tier gating every push.
 - Deterministic and LLM-judged scoring side by side, so a judge flip can never mask a broken fact check.
 - Retrieval recall@6 and MRR against hand-labelled chunk ids, run in CI with no model and no key.
 - Tool-trace and authorisation checks, including a canary scan for another customer's data in the answer, the tool arguments and the tool results.
@@ -36,7 +37,7 @@ From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 3
 
 | | |
 |---|---|
-| Cases | 138 of 142 pass their gating assertions (97%); grounded 35/38, retrieval 44 of 47 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind the three grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
+| Cases | 138 of the 142 cases then in the suite pass their gating assertions (97%); grounded 35/38, retrieval 44 of 47 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind the three grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
 | Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed under [Known failures](#known-failures); no unexpected failures |
 | Retrieval | BM25 recall@6 0.90, MRR 0.83 over the 48 labelled queries now in the suite (deterministic, see Methodology); embedding 0.95 and 0.91, hybrid 0.96 and 0.87 |
 | Guardrails | 100% of regex-layer attacks blocked at the input guard, 0 of 3 benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
@@ -94,7 +95,7 @@ The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bi
 | Abstention | 12 | Out-of-corpus and in-domain-but-absent questions must produce the abstention phrase with no invented figure |
 | Budget | 8 | Latency, cost and tool-round ceilings, nightly only. A smoke alarm, not a benchmark |
 
-142 cases in total; 44 are tagged `tier: smoke` and gate every push and pull request. The full set runs nightly and appends a row to [RESULTS.md](RESULTS.md).
+143 cases in total (38 grounded, 48 retrieval, 15 tools, 22 guardrails, 12 abstention, 8 budget); 44 are tagged `tier: smoke` and gate every push and pull request. The full set runs nightly and appends a row to [RESULTS.md](RESULTS.md).
 
 The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, because it runs the provider in retrieval mode with no LLM and no key. The other five categories run from `promptfooconfig.yaml`. Two promptfoo behaviours shaped the dataset format: a `file://` string inside a test case is dereferenced as file content (so a per-test provider override cannot point at the TypeScript provider), and an array-valued var is expanded into one test case per element (so list-valued vars such as `relevantChunkIds` and `expectTools` are stored as JSON strings).
 
@@ -116,7 +117,7 @@ The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, bec
 
 The embedding retriever closes most of the paraphrase gap: it retrieves all three of BM25's known misses and misses two queries of its own, one easy-vocabulary phrasing ("is there a minimum amount I have to put in to get started", where the target section says "no minimum opening deposit") and one where the bank's name in the query outweighs the topic (ret-048). The two retrievers miss different things, which is what makes the hybrid worth measuring: reciprocal rank fusion has the fewest misses and the best recall@6, because each ranker rescues the other's, but it ranks less sharply than the embedding retriever alone (MRR 0.870 against 0.910) because it re-admits BM25's weaker candidates. Which of the two is better depends on whether the consumer needs the relevant chunk anywhere in the top six or near the top of it. All three clear the CI thresholds. BM25 remains the gate and the retriever inside the assistant: it has no external dependency, and every grounded and known-failure number in this README was produced with it, so switching the system under test is a separate, deliberate change. Embedding the 124 chunks and the queries cost under a cent once; the vectors are committed so nobody pays it again.
 
-**End to end on the embedding retriever.** The full suite was run once with `RETRIEVER=embedding` (2026-09-14, cache off, the row marked "embedding retriever" in [RESULTS.md](RESULTS.md)). It passed 138 of 142, the same count as BM25, but not the same cases. The three retrieval-miss known failures (gr-006, gr-019, gr-024) all pass: the assistant now retrieves the starter-limits, international-limit and provisional-credit sections and answers from them. In their place, ret-022 misses as in the retrieval table; gr-030 is a judge flip (the answer is near-identical to the BM25 run's passing one, the rubric passes, and faithfulness scored 0.67 against the 0.7 threshold); and gr-031 is a genuine new retrieval miss found end to end, since labelled as ret-048. Its query, "How do I report a scam to Corella Bank?", differs from the labelled "How do I report a scam?" only by the bank's name, and that phrase pulls the scam-reporting overview and the general help section above the how-to-report section, so the assistant hedges the 24-hour phone line as "outside business hours". The embedding retriever is the better ranker on this corpus and turns three known misses into one. It is still not the default: the retriever interface is synchronous and the assistant would need a live embedding call, and therefore a key, for any query outside the committed cache, which BM25 never needs. Switching is a deliberate change to the system under test, recorded here as the evidence for making it.
+**End to end on the embedding retriever.** The full suite was run once with `RETRIEVER=embedding` (2026-09-14, cache off, the row marked "embedding retriever" in [RESULTS.md](RESULTS.md)). It passed 138 of the 142 cases then in the suite, the same count as BM25, but not the same cases. The three retrieval-miss known failures (gr-006, gr-019, gr-024) all pass: the assistant now retrieves the starter-limits, international-limit and provisional-credit sections and answers from them. In their place, ret-022 misses as in the retrieval table; gr-030 is a judge flip (the answer is near-identical to the BM25 run's passing one, the rubric passes, and faithfulness scored 0.67 against the 0.7 threshold); and gr-031 is a genuine new retrieval miss found end to end, since labelled as ret-048. Its query, "How do I report a scam to Corella Bank?", differs from the labelled "How do I report a scam?" only by the bank's name, and that phrase pulls the scam-reporting overview and the general help section above the how-to-report section, so the assistant hedges the 24-hour phone line as "outside business hours". The embedding retriever is the better ranker on this corpus and turns three known misses into one. It is still not the default: the retriever interface is synchronous and the assistant would need a live embedding call, and therefore a key, for any query outside the committed cache, which BM25 never needs. Switching is a deliberate change to the system under test, recorded here as the evidence for making it.
 
 **Judge calibration.** 20 human-labelled answers, ten faithful and ten with exactly one planted unsupported claim, are scored by the faithfulness grader through promptfoo's echo provider. `bun scripts/calibrate-judge.ts` sweeps thresholds and reports agreement and Cohen's kappa. Two sweeps were run on 2026-09-14 with `anthropic/claude-sonnet-5`.
 

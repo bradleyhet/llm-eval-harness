@@ -1,6 +1,6 @@
 # Threat model
 
-What the assistant in this repository defends against, where each defence lives in the code, how the evaluation suite measures it, and what it does not cover. Everything here is about the fictional Corella Bank assistant in `src/assistant/`; the numbers are from the nightly run cited in the [README](README.md#latest-numbers).
+What the assistant in this repository defends against, where each defence lives in the code, how the evaluation suite measures it, and what it does not cover. Everything here is about the fictional Corella Bank assistant in `src/assistant/`; the numbers are from the nightly run cited in the [README](README.md#latest-results).
 
 ## Assets and trust boundaries
 
