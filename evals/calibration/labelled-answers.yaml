@@ -1,0 +1,124 @@
+# Human-labelled answers for calibrating the context-faithfulness judge.
+# Ten faithful answers and ten that each plant exactly one claim the context does not support.
+# `contextChunkIds` are resolved to chunk text by scripts/calibrate-judge.ts, so the context the
+# judge sees is exactly what the assistant would have retrieved.
+- id: cal-01
+  query: "How much is the monthly fee on an Everyday account?"
+  contextChunkIds: [fees-and-limits#everyday-account-fees]
+  answer: "The Everyday account costs $5 a month, charged on the first day of the month for the previous month. The fee is waived in any calendar month where you deposit $1,000 or more, and transfers from a Saver do not count towards that."
+  faithful: true
+  note: Restates the fee, timing and waiver as written.
+- id: cal-02
+  query: "How much is the monthly fee on an Everyday account?"
+  contextChunkIds: [fees-and-limits#everyday-account-fees]
+  answer: "The Everyday account costs $5 a month. The fee is waived in any calendar month where you deposit $500 or more."
+  faithful: false
+  note: Planted claim - waiver threshold is $1,000, not $500.
+- id: cal-03
+  query: "Does the Saver account have a fee, and what interest does it pay?"
+  contextChunkIds: [fees-and-limits#saver-account-fees]
+  answer: "The Saver has no monthly fee. It pays a base rate of 0.10% a year, and a bonus rate of 4.35% a year in months where you deposit at least $200 and make no withdrawals."
+  faithful: true
+  note: All three figures and the bonus conditions match.
+- id: cal-04
+  query: "Does the Saver account have a fee, and what interest does it pay?"
+  contextChunkIds: [fees-and-limits#saver-account-fees]
+  answer: "The Saver has no monthly fee. It pays a base rate of 0.10% a year and a bonus rate of 4.35% a year when you deposit at least $200 and make no withdrawals. The bonus rate is guaranteed for your first 12 months."
+  faithful: false
+  note: Planted claim - no 12 month guarantee exists in the context.
+- id: cal-05
+  query: "How fast can I get a replacement card if I pay for express?"
+  contextChunkIds: [card-replacement#express-replacement]
+  answer: "Express replacement costs $15 and comes by courier: within two business days to metropolitan addresses and three business days to regional addresses. It needs a residential street address, not a post office box."
+  faithful: true
+  note: Fee, timeframes and address rule all present in context.
+- id: cal-06
+  query: "How fast can I get a replacement card if I pay for express?"
+  contextChunkIds: [card-replacement#express-replacement]
+  answer: "Express replacement costs $15 and is delivered by courier the next business day anywhere in Australia."
+  faithful: false
+  note: Planted claim - next business day anywhere contradicts the two and three day timeframes.
+- id: cal-07
+  query: "What should I do if I have lost my card?"
+  contextChunkIds: [card-replacement#lost-card]
+  answer: "Freeze the card first from card controls in case it turns up. If you then report it lost, the card is cancelled permanently and a free standard replacement is sent to you."
+  faithful: true
+  note: Freeze first, permanent cancellation on report, free standard replacement.
+- id: cal-08
+  query: "What should I do if I have lost my card?"
+  contextChunkIds: [card-replacement#lost-card]
+  answer: "Freeze the card first in case it turns up. If you then report it lost, the card is cancelled permanently and a replacement is sent, with a $10 replacement fee charged to your account."
+  faithful: false
+  note: Planted claim - standard replacement for a lost card is free.
+- id: cal-09
+  query: "How long do I have to dispute a card transaction?"
+  contextChunkIds: [disputes#when-to-lodge-a-dispute]
+  answer: "A card transaction dispute must be lodged within 60 days of the transaction date, counted from when the transaction was made rather than when it settled or when you noticed it. Unauthorised direct debits follow a different rule and can be lodged within 90 days."
+  faithful: true
+  note: Both windows and the counting rule are in context.
+- id: cal-10
+  query: "How long do I have to dispute a card transaction?"
+  contextChunkIds: [disputes#when-to-lodge-a-dispute]
+  answer: "You have 60 days to lodge a card dispute, counted from the day you first noticed the transaction."
+  faithful: false
+  note: Planted claim - the context says the 60 days is counted from the transaction date, not from when you noticed it.
+- id: cal-11
+  query: "What does it cost to use an ATM that is not in the Corella network?"
+  contextChunkIds: [atm-access#other-australian-atms]
+  answer: "Withdrawals at other Australian ATMs cost $2.50 each, and up to three of those fees are rebated each month."
+  faithful: true
+  note: Fee and rebate cap match.
+- id: cal-12
+  query: "What does it cost to use an ATM that is not in the Corella network?"
+  contextChunkIds: [atm-access#other-australian-atms]
+  answer: "Withdrawals at other Australian ATMs cost $2.50 each, and every one of those fees is rebated if you deposit $1,000 in the month."
+  faithful: false
+  note: Planted claim - the rebate is capped at three per month and is not tied to deposits.
+- id: cal-13
+  query: "What does an international transfer cost?"
+  contextChunkIds: [international-transfers#fees-and-exchange-rate]
+  answer: "Each international transfer has a flat $8 fee, and the exchange rate is the mid market rate plus a 0.5% margin. The rate you are quoted is locked for 60 seconds while you confirm."
+  faithful: true
+  note: Flat fee, margin and rate lock all present.
+- id: cal-14
+  query: "What does an international transfer cost?"
+  contextChunkIds: [international-transfers#fees-and-exchange-rate]
+  answer: "Each international transfer has a flat $8 fee and a 0.5% exchange margin, but the margin is waived on transfers over $5,000."
+  faithful: false
+  note: Planted claim - no margin waiver exists in the context.
+- id: cal-15
+  query: "What happens if I enter my app passcode wrong too many times?"
+  contextChunkIds: [lockout-and-recovery#app-passcode-lockout]
+  answer: "Five wrong passcode attempts lock the app for 30 minutes. If you reach ten wrong attempts in total the account is locked and you need to call 1300 000 267 to unlock it."
+  faithful: true
+  note: Both thresholds, the lock duration and the phone number match.
+- id: cal-16
+  query: "What happens if I enter my app passcode wrong too many times?"
+  contextChunkIds: [lockout-and-recovery#app-passcode-lockout]
+  answer: "Five wrong passcode attempts lock the app for 30 minutes. After ten wrong attempts the account is locked, and you can unlock it yourself by replying to the email we send you."
+  faithful: false
+  note: Planted claim - unlocking after ten attempts requires a phone call, not an email reply.
+- id: cal-17
+  query: "Can I get paper statements?"
+  contextChunkIds: [statements#paper-statements]
+  answer: "Yes. Paper statements cost $2.50 each and are posted within five business days of your request."
+  faithful: true
+  note: Fee and posting time match.
+- id: cal-18
+  query: "Can I get paper statements?"
+  contextChunkIds: [statements#paper-statements]
+  answer: "Yes. Paper statements cost $2.50 each and are posted within five business days, and they are free for customers aged 65 and over."
+  faithful: false
+  note: Planted claim - no age-based exemption exists in the context.
+- id: cal-19
+  query: "How do we close a joint account?"
+  contextChunkIds: [closing-an-account#closing-a-joint-account]
+  answer: "Both holders have to approve the closure in their own apps. Once the first person requests it, the other has seven days to approve, and the account closes two business days after the second approval."
+  faithful: true
+  note: Both-approve rule, seven day window and two business day processing match.
+- id: cal-20
+  query: "How do we close a joint account?"
+  contextChunkIds: [closing-an-account#closing-a-joint-account]
+  answer: "Either holder can close the joint account on their own from the accounts screen, and it closes within two business days."
+  faithful: false
+  note: Planted claim - closure needs both holders to approve.

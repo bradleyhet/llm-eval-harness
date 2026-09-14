@@ -1,0 +1,26 @@
+# Shared assertions. Dataset rows reference these as
+#   - $ref: "evals/assertions/templates.yaml#/faithful"
+# (promptfoo resolves the path relative to the working directory, so run from the repo root).
+# Threshold chosen from scripts/calibrate-judge.ts on 2026-09-14 with the overridden prompts
+# (n=20, agreement 0.95, kappa 0.90, no false rejects, one false accept). See README, Methodology.
+# The two grader prompts are overridden (statement extraction, then NLI): the stock prompts let
+# the judge add preamble and inferred statements, each counted as an unsupported claim, which
+# put every human-faithful answer between 0.33 and 0.75.
+faithful:
+  type: context-faithfulness
+  threshold: 0.7
+  rubricPrompt:
+    - file://evals/assertions/faithfulness-longform.txt
+    - file://evals/assertions/faithfulness-nli.txt
+  contextTransform: 'output.context.join("\n\n")'
+recallsExpected:
+  type: context-recall
+  value: "{{expected}}"
+  threshold: 0.7
+  contextTransform: 'output.context.join("\n\n")'
+isRefusal:
+  type: contains
+  value: "I can't help with that request"
+abstains:
+  type: icontains
+  value: "I don't have that information"

@@ -1,0 +1,12 @@
+You are checking whether each statement is supported by the context. A statement is supported when the context states the same fact, even if the wording, ordering, number format or currency format differs (for example "$5" and "five dollars", or "5 to 7 business days" and "five to seven business days"). A statement is NOT supported when it contradicts the context, or asserts a figure, condition, timeframe or policy that the context does not contain. A statement that makes no factual claim (such as "The answer makes no factual claim") counts as supported.
+
+For each statement give a one-sentence explanation and a verdict of Yes or No. Then give the final line exactly in this format, one verdict per statement in order, separated by ". ":
+Final verdict for each statement in order: Yes. No. Yes.
+
+Context:
+{{context}}
+
+Statements:
+{{statements|join("\n")}}
+
+Answer:

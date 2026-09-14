@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Corella Bank support assistant evals (RAG, tools, guardrails, abstention, budget)
+
+prompts:
+  - "{{query}}"
+
+providers:
+  - id: file://src/eval/provider.ts
+    label: neobank-assistant
+    config:
+      mode: answer
+      model: google/gemini-2.5-flash
+      retrieval:
+        k: 6
+        minScore: 0
+      maxToolRounds: 3
+      temperature: 0
+      maxTokens: 600
+
+defaultTest:
+  options:
+    # The provider returns { answer, context, trace }. Assertions see the answer string;
+    # RAG graders use contextTransform to reach the raw output's context array.
+    transform: output.answer
+    provider:
+      text:
+        id: openrouter:anthropic/claude-sonnet-5
+        config:
+          temperature: 0
+          max_tokens: 1024
+
+# Shared assertions live in evals/assertions/templates.yaml and are referenced from dataset
+# rows as `$ref: "evals/assertions/templates.yaml#/<name>"` (paths resolve from the repo root).
+
+# Retrieval cases live in promptfooconfig.retrieval.yaml (retrieval-mode provider, no LLM).
+tests:
+  - file://evals/tests/grounded.yaml
+  - file://evals/tests/tools.yaml
+  - file://evals/tests/guardrails.yaml
+  - file://evals/tests/abstention.yaml
+  - file://evals/tests/budget.yaml
+
+evaluateOptions:
+  maxConcurrency: 4
+
+outputPath: results/latest.json

@@ -1,0 +1,1000 @@
+# Retrieval: one row per labelled query in evals/data/retrieval-labels.yaml, run in the
+# provider's retrieval mode via promptfooconfig.retrieval.yaml (no LLM call, no cost). recallAt6 must be at least 0.5 per row;
+# mrr is recorded as a named metric only (weight 0) so it never fails a row.
+# Generated from the labels file; keep the two in step.
+
+- description: "easy: How much is the monthly fee on an Everyday account?"
+  vars:
+    query: How much is the monthly fee on an Everyday account?
+    customerId: cust_001
+    relevantChunkIds: '["fees-and-limits#everyday-account-fees","account-types#everyday-account"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-001
+    category: retrieval
+    tier: smoke
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What interest rate does the Saver account pay?"
+  vars:
+    query: What interest rate does the Saver account pay?
+    customerId: cust_001
+    relevantChunkIds: '["account-types#saver-account","fees-and-limits#saver-account-fees"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-002
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What is the daily ATM withdrawal limit?"
+  vars:
+    query: What is the daily ATM withdrawal limit?
+    customerId: cust_001
+    relevantChunkIds: '["atm-access#daily-withdrawal-limit","fees-and-limits#card-and-atm-limits"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-003
+    category: retrieval
+    tier: smoke
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: How long does the physical card take to arrive?"
+  vars:
+    query: How long does the physical card take to arrive?
+    customerId: cust_001
+    relevantChunkIds: '["cards#physical-card","opening-an-account#getting-your-account-details"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-004
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What identity documents are accepted when opening an acco..."
+  vars:
+    query: What identity documents are accepted when opening an account?
+    customerId: cust_001
+    relevantChunkIds: '["kyc-documents#primary-photo-identification","kyc-documents#secondary-documents"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-005
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: How much does an international transfer cost?"
+  vars:
+    query: How much does an international transfer cost?
+    customerId: cust_001
+    relevantChunkIds: '["international-transfers#fees-and-exchange-rate","fees-and-limits#international-transfer-limits"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-006
+    category: retrieval
+    tier: smoke
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: How do I freeze my card?"
+  vars:
+    query: How do I freeze my card?
+    customerId: cust_001
+    relevantChunkIds: '["card-controls#freezing-and-unfreezing"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-007
+    category: retrieval
+    tier: smoke
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: How do I report a scam?"
+  vars:
+    query: How do I report a scam?
+    customerId: cust_001
+    relevantChunkIds: '["scam-reporting#how-to-report-a-scam"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-008
+    category: retrieval
+    tier: smoke
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: How long does manual review of my identity verification t..."
+  vars:
+    query: How long does manual review of my identity verification take?
+    customerId: cust_001
+    relevantChunkIds: '["kyc-process#manual-review"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-009
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What is the fee for a paper statement?"
+  vars:
+    query: What is the fee for a paper statement?
+    customerId: cust_001
+    relevantChunkIds: '["statements#paper-statements","fees-and-limits#other-fees"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-010
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: Can I set a rate alert for a currency?"
+  vars:
+    query: Can I set a rate alert for a currency?
+    customerId: cust_001
+    relevantChunkIds: '["foreign-exchange#rate-alerts"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-011
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: How do I cancel a direct debit?"
+  vars:
+    query: How do I cancel a direct debit?
+    customerId: cust_001
+    relevantChunkIds: '["direct-debits#cancelling-a-direct-debit"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-012
+    category: retrieval
+    tier: smoke
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What are the in-app chat support hours?"
+  vars:
+    query: What are the in-app chat support hours?
+    customerId: cust_001
+    relevantChunkIds: '["account-types#getting-help"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-013
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What happens when I sign in on a new device?"
+  vars:
+    query: What happens when I sign in on a new device?
+    customerId: cust_001
+    relevantChunkIds: '["security-and-2fa#new-device-sign-in"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-014
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: What happens to an inactive account?"
+  vars:
+    query: What happens to an inactive account?
+    customerId: cust_001
+    relevantChunkIds: '["closing-an-account#inactive-accounts"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-015
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "easy: Can I make a cardless withdrawal at an ATM?"
+  vars:
+    query: Can I make a cardless withdrawal at an ATM?
+    customerId: cust_001
+    relevantChunkIds: '["atm-access#cardless-withdrawals"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-016
+    category: retrieval
+    tier: full
+    difficulty: easy
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: whats the cut off for getting money back on a dodgy card ..."
+  vars:
+    query: whats the cut off for getting money back on a dodgy card charge
+    customerId: cust_001
+    relevantChunkIds: '["disputes#when-to-lodge-a-dispute"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-017
+    category: retrieval
+    tier: smoke
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: I typed the wrong number at the servo three times and now..."
+  vars:
+    query: I typed the wrong number at the servo three times and now my card wont work at the terminal
+    customerId: cust_001
+    relevantChunkIds: '["lockout-and-recovery#card-pin-lockout"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-018
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: got a new phone, how do i get back into the app"
+  vars:
+    query: got a new phone, how do i get back into the app
+    customerId: cust_001
+    relevantChunkIds: '["lockout-and-recovery#lost-or-replaced-phone"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-019
+    category: retrieval
+    tier: smoke
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: do you charge me extra when I tap my card in Bali"
+  vars:
+    query: do you charge me extra when I tap my card in Bali
+    customerId: cust_001
+    relevantChunkIds: '["cards#using-the-card-overseas","foreign-exchange#how-the-rate-is-set"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-020
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: need a new card by tomorrow, is there a faster way to get..."
+  vars:
+    query: need a new card by tomorrow, is there a faster way to get one sent out
+    customerId: cust_001
+    relevantChunkIds: '["card-replacement#express-replacement"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-021
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: is there a minimum amount I have to put in to get started"
+  vars:
+    query: is there a minimum amount I have to put in to get started
+    customerId: cust_001
+    relevantChunkIds: '["opening-an-account#what-you-need-before-you-start"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-022
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: my partner and I want to share one account, what do we ne..."
+  vars:
+    query: my partner and I want to share one account, what do we need to do
+    customerId: cust_001
+    relevantChunkIds: '["joint-accounts#opening-a-joint-account"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-023
+    category: retrieval
+    tier: smoke
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: someone rang saying they were from the bank and asked me ..."
+  vars:
+    query: someone rang saying they were from the bank and asked me to read out the code you texted me
+    customerId: cust_001
+    relevantChunkIds: '["scam-reporting#reporting-impersonation-attempts","security-and-2fa#text-message-codes","security-and-2fa#keeping-your-account-safe"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-024
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: how do i put actual notes and coins into my account"
+  vars:
+    query: how do i put actual notes and coins into my account
+    customerId: cust_001
+    relevantChunkIds: '["atm-access#depositing-cash"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-025
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: how many separate savings pots can i have going at once"
+  vars:
+    query: how many separate savings pots can i have going at once
+    customerId: cust_001
+    relevantChunkIds: '["account-types#saver-account","opening-an-account#adding-a-saver-later"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-026
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: why is it taking so long for someone to look at my licenc..."
+  vars:
+    query: why is it taking so long for someone to look at my licence photo
+    customerId: cust_001
+    relevantChunkIds: '["kyc-process#manual-review"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-027
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: can I stop one particular shop from billing me again"
+  vars:
+    query: can I stop one particular shop from billing me again
+    customerId: cust_001
+    relevantChunkIds: '["card-controls#merchant-locks"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-028
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: sent money to the wrong person overseas, can i get it back"
+  vars:
+    query: sent money to the wrong person overseas, can i get it back
+    customerId: cust_001
+    relevantChunkIds: '["international-transfers#cancelling-or-recalling-a-transfer"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-029
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: i want all my spending in a spreadsheet for my accountant"
+  vars:
+    query: i want all my spending in a spreadsheet for my accountant
+    customerId: cust_001
+    relevantChunkIds: '["statements#exporting-transactions"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-030
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: if a bill comes out and theres no money in there what hap..."
+  vars:
+    query: if a bill comes out and theres no money in there what happens
+    customerId: cust_001
+    relevantChunkIds: '["direct-debits#dishonour-fee"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-031
+    category: retrieval
+    tier: smoke
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: my passport ran out last month, does the bank care"
+  vars:
+    query: my passport ran out last month, does the bank care
+    customerId: cust_001
+    relevantChunkIds: '["kyc-process#ongoing-verification-checks"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-032
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: Is there a monthly fee on the Saver account?"
+  vars:
+    query: Is there a monthly fee on the Saver account?
+    customerId: cust_001
+    relevantChunkIds: '["fees-and-limits#saver-account-fees"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-033
+    category: retrieval
+    tier: smoke
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: What is the daily limit for sending money overseas?"
+  vars:
+    query: What is the daily limit for sending money overseas?
+    customerId: cust_001
+    relevantChunkIds: '["international-transfers#daily-limit","fees-and-limits#international-transfer-limits"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-034
+    category: retrieval
+    tier: smoke
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: How much does a standard card replacement cost and how lo..."
+  vars:
+    query: How much does a standard card replacement cost and how long does it take to arrive?
+    customerId: cust_001
+    relevantChunkIds: '["card-replacement#standard-replacement"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-035
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: How long does the whole chargeback process take to be res..."
+  vars:
+    query: How long does the whole chargeback process take to be resolved?
+    customerId: cust_001
+    relevantChunkIds: '["chargeback-timelines#resolution-window"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-036
+    category: retrieval
+    tier: smoke
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: My card was stolen, not lost. Can it be reinstated?"
+  vars:
+    query: My card was stolen, not lost. Can it be reinstated?
+    customerId: cust_001
+    relevantChunkIds: '["card-replacement#stolen-card"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-037
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: How many wrong app passcode attempts before I am locked out?"
+  vars:
+    query: How many wrong app passcode attempts before I am locked out?
+    customerId: cust_001
+    relevantChunkIds: '["lockout-and-recovery#app-passcode-lockout"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-038
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: How do I close a joint account?"
+  vars:
+    query: How do I close a joint account?
+    customerId: cust_001
+    relevantChunkIds: '["closing-an-account#closing-a-joint-account","joint-accounts#removing-a-holder-or-closing-a-joint-account"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-039
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: Is there a fee to cancel a direct debit?"
+  vars:
+    query: Is there a fee to cancel a direct debit?
+    customerId: cust_001
+    relevantChunkIds: '["direct-debits#cancellation-fee"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-040
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: What does it cost to withdraw at an ATM that is not in th..."
+  vars:
+    query: What does it cost to withdraw at an ATM that is not in the Corella Cash Network?
+    customerId: cust_001
+    relevantChunkIds: '["atm-access#other-australian-atms"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-041
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: How long do I have to dispute an unauthorised direct debit?"
+  vars:
+    query: How long do I have to dispute an unauthorised direct debit?
+    customerId: cust_001
+    relevantChunkIds: '["direct-debits#disputing-an-unauthorised-direct-debit"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-042
+    category: retrieval
+    tier: smoke
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: What is the daily limit for domestic transfers to other A..."
+  vars:
+    query: What is the daily limit for domestic transfers to other Australian banks?
+    customerId: cust_001
+    relevantChunkIds: '["fees-and-limits#domestic-transfer-limits"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-043
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "distractor: How much does a second damaged card replacement cost with..."
+  vars:
+    query: How much does a second damaged card replacement cost within the same year?
+    customerId: cust_001
+    relevantChunkIds: '["card-replacement#damaged-card"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-044
+    category: retrieval
+    tier: full
+    difficulty: distractor
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+
+# Added 2026-09-14 from full-run triage: known BM25 misses, recorded (threshold 0) rather than gated.
+- description: "paraphrase: How much can I send overseas per day?"
+  vars:
+    query: How much can I send overseas per day?
+    customerId: cust_002
+    relevantChunkIds: '["fees-and-limits#international-transfer-limits","international-transfers#daily-limit"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-045
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: true
+    failure_class: retrieval-miss
+    failure_note: "2026-09-14: found by grounded case gr-019; no lexical overlap with the target section."
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      weight: 0
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: Will I get my money back while a $300 dispute is being investigated?"
+  vars:
+    query: Will I get my money back while a $300 dispute is being investigated?
+    customerId: cust_003
+    relevantChunkIds: '["disputes#provisional-credit"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-046
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: true
+    failure_class: retrieval-miss
+    failure_note: "2026-09-14: found by grounded case gr-024; no lexical overlap with the target section."
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      weight: 0
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
+- description: "paraphrase: What can I do with my account before my identity is verified?"
+  vars:
+    query: What can I do with my account before my identity is verified?
+    customerId: cust_003
+    relevantChunkIds: '["opening-an-account#starter-limits-before-verification"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-047
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: true
+    failure_class: retrieval-miss
+    failure_note: "2026-09-14: found by grounded case gr-006; no lexical overlap with the target section."
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      weight: 0
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr

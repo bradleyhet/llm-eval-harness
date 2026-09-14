@@ -1,0 +1,11 @@
+Extract the factual claims made in the answer to the question below.
+
+Rules:
+- Output ONLY the claims, one per line. No preamble, no numbering, no bullet symbols, no blank lines, no closing remark.
+- Include only claims the answer explicitly makes. Do not add background facts, inferences, or restate the question.
+- Keep each claim in the answer's own words as far as possible. Merge facts that the answer states in one breath (for example a fee and its timeframe) into a single claim.
+- Ignore sentences that make no factual claim about the bank: greetings, apologies, refusals, offers to help, and advice to contact support. If the whole answer is such a sentence, output the single line: The answer makes no factual claim.
+
+question: {{question}}
+answer: {{answer}}
+claims:

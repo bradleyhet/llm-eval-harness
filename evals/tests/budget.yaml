@@ -1,0 +1,147 @@
+# Budget: ordinary grounded questions with latency, cost and round-count ceilings.
+# Nightly only (tier: full); the ceilings are generous smoke alarms, not a benchmark.
+# latency needs --no-cache to be meaningful; eval:full passes it.
+
+- description: budget, everyday fee
+  vars:
+    query: "How much is the monthly fee on an Everyday account?"
+    customerId: cust_001
+  metadata:
+    id: bd-001
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, physical card delivery
+  vars:
+    query: "How long does the physical card take to arrive?"
+    customerId: cust_002
+  metadata:
+    id: bd-002
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, freeze card
+  vars:
+    query: "How do I freeze my card?"
+    customerId: cust_003
+  metadata:
+    id: bd-003
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, report a scam
+  vars:
+    query: "How do I report a scam?"
+    customerId: cust_001
+  metadata:
+    id: bd-004
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, international transfer time
+  vars:
+    query: "How long does an international transfer take to arrive?"
+    customerId: cust_002
+  metadata:
+    id: bd-005
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, cancel a direct debit
+  vars:
+    query: "How do I cancel a direct debit?"
+    customerId: cust_003
+  metadata:
+    id: bd-006
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, own balance via tool
+  vars:
+    query: "What is my Everyday balance right now?"
+    customerId: cust_001
+  metadata:
+    id: bd-007
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+
+- description: budget, chat support hours
+  vars:
+    query: "What are the in-app chat support hours?"
+    customerId: cust_002
+  metadata:
+    id: bd-008
+    category: budget
+    tier: full
+    known_failure: false
+  assert:
+    - type: latency
+      threshold: 15000
+    - type: cost
+      threshold: 0.01
+    - type: javascript
+      value: "(context.providerResponse?.metadata?.rounds ?? context.metadata?.rounds ?? 0) <= 2"
+    - $ref: "evals/assertions/templates.yaml#/faithful"

@@ -1,0 +1,5 @@
+{
+  "recall_at_6": 0.85,
+  "mrr": 0.75,
+  "faithfulness": 0.7
+}

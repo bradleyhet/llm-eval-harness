@@ -1,0 +1,767 @@
+# Grounded Q&A: the answer must come from retrieved corpus chunks and state the right fact.
+# Every expected value is taken from corpus/FACTS.md. Rows on distractor pairs carry a
+# not-icontains on the lookalike chunk's figure so a wrong-side answer fails.
+
+- description: everyday account monthly fee
+  vars:
+    query: "How much is the monthly fee on an Everyday account?"
+    customerId: cust_001
+    expected: "The Everyday account fee is $5 a month, waived in any calendar month where $1,000 or more is deposited."
+  metadata:
+    id: gr-001
+    category: grounded
+    tier: smoke
+    distractor_pair: everyday-vs-saver-fee
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$5", "5 dollars", "five dollars" ]
+    - type: not-icontains
+      value: "$0 a month"
+    - type: llm-rubric
+      value: States that the Everyday account fee is $5 per month. Mentioning the $1,000 monthly deposit waiver is welcome but not required. Does not invent any other fee.
+
+- description: saver account monthly fee
+  vars:
+    query: "Is there a monthly fee on the Saver account?"
+    customerId: cust_002
+    expected: "The Saver account has no monthly fee; it costs $0."
+  metadata:
+    id: gr-002
+    category: grounded
+    tier: smoke
+    distractor_pair: everyday-vs-saver-fee
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$0", "no monthly fee", "no fee", "free" ]
+    - type: not-icontains
+      value: "$5 a month"
+    - type: llm-rubric
+      value: Says the Saver account has no monthly fee. Does not claim the Saver costs $5 or attach the Everyday fee to it.
+
+- description: saver bonus interest rate
+  vars:
+    query: "What bonus interest rate does the Saver pay and what do I have to do to earn it?"
+    customerId: cust_001
+    expected: "The Saver pays a base rate of 0.10% per year and a bonus rate of 4.35% per year in months where at least $200 is deposited and no withdrawals are made."
+  metadata:
+    id: gr-003
+    category: grounded
+    tier: smoke
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "4.35%", "4.35 %", "4.35 per cent" ]
+    - type: icontains-any
+      value: [ "$200", "200 dollars" ]
+    - type: llm-rubric
+      value: States the 4.35% bonus rate and the two conditions, a $200 deposit in the month and no withdrawals. May also mention the 0.10% base rate.
+
+- description: minimum age to open an account
+  vars:
+    query: "How old do I need to be to open a Corella Bank account?"
+    customerId: cust_003
+    expected: "You must be at least 16 years old, an Australian resident with an Australian residential address and mobile number."
+  metadata:
+    id: gr-004
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "16", "sixteen" ]
+    - type: llm-rubric
+      value: States the minimum age of 16. May mention the Australian residency requirement.
+
+- description: minimum opening deposit
+  vars:
+    query: "Do I need to deposit a minimum amount to open an account?"
+    customerId: cust_001
+    expected: "There is no minimum opening deposit."
+  metadata:
+    id: gr-005
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "no minimum", "not need to deposit", "don't need to deposit", "$0" ]
+    - type: llm-rubric
+      value: Says there is no minimum opening deposit. Does not invent a dollar amount.
+
+- description: starter limits before verification
+  vars:
+    query: "What can I do with my account before my identity is verified?"
+    customerId: cust_003
+    expected: "Before verification the account is on starter limits: the balance is capped at $1,000, international transfers are not available and a card cannot be ordered."
+  metadata:
+    id: gr-006
+    category: grounded
+    tier: full
+    known_failure: true
+    failure_class: retrieval-miss
+    failure_note: "2026-09-14: BM25 did not retrieve opening-an-account#starter-limits-before-verification; the assistant answered from the KYC tool instead. Added to retrieval labels as ret-047."
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$1,000", "$1000", "1,000 dollars" ]
+    - type: llm-rubric
+      value: Describes the starter limits, including the $1,000 balance cap. May mention no international transfers and no card order.
+
+- description: primary identity documents
+  vars:
+    query: "Which photo ID documents can I use to verify my identity?"
+    customerId: cust_001
+    expected: "Primary documents are an Australian driver licence, an unexpired passport or a state proof of age card."
+  metadata:
+    id: gr-007
+    category: grounded
+    tier: smoke
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "driver licence", "driver's licence", "drivers licence" ]
+    - type: icontains
+      value: "passport"
+    - type: llm-rubric
+      value: Lists the accepted primary documents, including a driver licence and a passport, and ideally the proof of age card. Does not list documents the corpus does not mention.
+
+- description: automated verification time
+  vars:
+    query: "How long does identity verification usually take?"
+    customerId: cust_002
+    expected: "Automated verification takes about ten minutes; if it goes to manual review it can take up to two business days."
+  metadata:
+    id: gr-008
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "ten minutes", "10 minutes" ]
+    - type: llm-rubric
+      value: Says automated verification takes about ten minutes. May add that manual review takes up to two business days.
+
+- description: manual review duration
+  vars:
+    query: "My verification went to manual review. How long will that take?"
+    customerId: cust_003
+    expected: "Manual review takes up to two business days and you only need to act if the app asks for a secondary document."
+  metadata:
+    id: gr-009
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "two business days", "2 business days" ]
+    - type: llm-rubric
+      value: States that manual review takes up to two business days. Does not invent a different timeframe.
+
+- description: physical card delivery time
+  vars:
+    query: "How long does it take for the physical card to arrive after I order it?"
+    customerId: cust_001
+    expected: "The physical card arrives in five to seven business days and the first card is free."
+  metadata:
+    id: gr-010
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "five to seven", "5 to 7", "5-7", "seven business days" ]
+    - type: llm-rubric
+      value: States five to seven business days for physical card delivery.
+
+- description: daily card purchase limit
+  vars:
+    query: "What is the daily purchase limit on my card?"
+    customerId: cust_002
+    expected: "The daily purchase limit is $5,000 across the physical and virtual card combined."
+  metadata:
+    id: gr-011
+    category: grounded
+    tier: smoke
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$5,000", "$5000", "5,000 dollars" ]
+    - type: llm-rubric
+      value: States the $5,000 daily purchase limit. May note it is shared across physical and virtual cards.
+
+- description: transaction types that can be blocked
+  vars:
+    query: "Which kinds of transactions can I block on my card?"
+    customerId: cust_001
+    expected: "You can block online, overseas, gambling, ATM and contactless transactions, and turning a block off needs two factor approval."
+  metadata:
+    id: gr-012
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains
+      value: "gambling"
+    - type: icontains
+      value: "overseas"
+    - type: llm-rubric
+      value: Lists the blockable transaction types from the corpus (online, overseas, gambling, ATM, contactless). Does not invent categories.
+
+- description: standard card replacement cost and time
+  vars:
+    query: "How much does a standard card replacement cost and how long does it take to arrive?"
+    customerId: cust_003
+    expected: "Standard replacement is free and the card arrives by post in five to seven business days."
+  metadata:
+    id: gr-013
+    category: grounded
+    tier: smoke
+    distractor_pair: standard-vs-express-replacement
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "free", "$0", "no cost", "no charge" ]
+    - type: icontains-any
+      value: [ "five to seven", "5 to 7", "5-7" ]
+    - type: not-icontains
+      value: "$15"
+    - type: llm-rubric
+      value: Says standard replacement is free and takes five to seven business days. Does not quote the express fee as the standard fee.
+
+- description: express card replacement
+  vars:
+    query: "What does express card replacement cost and how fast is it?"
+    customerId: cust_001
+    expected: "Express replacement costs $15, is sent by courier and arrives within two business days in metropolitan areas or three business days in regional areas."
+  metadata:
+    id: gr-014
+    category: grounded
+    tier: full
+    distractor_pair: standard-vs-express-replacement
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$15", "15 dollars" ]
+    - type: not-icontains
+      value: "five to seven"
+    - type: llm-rubric
+      value: States the $15 express fee and the two or three business day delivery. Does not describe express as free.
+
+- description: what to do about a lost card
+  vars:
+    query: "I think I have lost my card somewhere in the house. What should I do?"
+    customerId: cust_002
+    expected: "Freeze the card first in the app; if it turns up you can unfreeze it, and only report it lost once you are sure, because reporting lost cancels the card permanently and a free standard replacement is sent."
+  metadata:
+    id: gr-015
+    category: grounded
+    tier: full
+    distractor_pair: lost-vs-stolen-card
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains
+      value: "freeze"
+    - type: not-icontains
+      value: "police report"
+    - type: llm-rubric
+      value: Recommends freezing the card first and explains that reporting it lost cancels it permanently. Does not apply the stolen card process.
+
+- description: stolen card reinstatement
+  vars:
+    query: "My card was stolen. Can it be reinstated if I get it back?"
+    customerId: cust_001
+    expected: "A stolen card is cancelled immediately and cannot be reinstated."
+  metadata:
+    id: gr-016
+    category: grounded
+    tier: full
+    distractor_pair: lost-vs-stolen-card
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "cannot be reinstated", "can't be reinstated", "cannot reinstate", "can't reinstate", "not be reinstated" ]
+    - type: not-icontains
+      value: "unfreeze"
+    - type: llm-rubric
+      value: Says a stolen card is cancelled and cannot be reinstated. Does not suggest freezing and unfreezing as for a lost card.
+
+- description: damaged card replacement fee
+  vars:
+    query: "My card is cracked. Is there a fee to replace a damaged card?"
+    customerId: cust_003
+    expected: "The first damaged card replacement in any 12 months is free; further damaged card replacements cost $10 each."
+  metadata:
+    id: gr-017
+    category: grounded
+    tier: full
+    distractor_pair: damaged-vs-express-fee
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$10", "10 dollars", "ten dollars" ]
+    - type: not-icontains
+      value: "$15"
+    - type: llm-rubric
+      value: Explains the first replacement in 12 months is free and later ones cost $10. Does not quote $15 as the damaged card fee.
+
+- description: domestic transfer daily limit
+  vars:
+    query: "What is the daily limit for transfers to other Australian banks?"
+    customerId: cust_001
+    expected: "The domestic transfer daily limit is $10,000 by default and can be raised to $25,000 with two factor approval; domestic transfers are free."
+  metadata:
+    id: gr-018
+    category: grounded
+    tier: smoke
+    distractor_pair: domestic-vs-international-limit
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$10,000", "$10000", "10,000 dollars" ]
+    - type: not-icontains
+      value: "$5,000"
+    - type: llm-rubric
+      value: States the $10,000 default daily domestic transfer limit and ideally the $25,000 raised limit. Does not give the international limit.
+
+- description: international transfer daily limit
+  vars:
+    query: "How much can I send overseas per day?"
+    customerId: cust_002
+    expected: "The international transfer daily limit is $5,000 by default and can be raised to $15,000 after a security call."
+  metadata:
+    id: gr-019
+    category: grounded
+    tier: full
+    distractor_pair: domestic-vs-international-limit
+    known_failure: true
+    failure_class: retrieval-miss
+    failure_note: "2026-09-14: BM25 did not retrieve fees-and-limits#international-transfer-limits for this phrasing; the assistant abstained correctly. Added to retrieval labels as ret-045."
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$5,000", "$5000", "5,000 dollars" ]
+    - type: not-icontains
+      value: "$10,000"
+    - type: llm-rubric
+      value: States the $5,000 default daily international limit and ideally the $15,000 raised limit. Does not give the domestic limit.
+
+- description: fee at ATMs outside the Corella network
+  vars:
+    query: "What does it cost to use an ATM that is not in the Corella Cash Network?"
+    customerId: cust_003
+    expected: "Withdrawals at other Australian ATMs cost $2.50 each, and up to three of those fees are rebated per month."
+  metadata:
+    id: gr-020
+    category: grounded
+    tier: full
+    distractor_pair: network-vs-other-atms
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$2.50", "2.50 dollars" ]
+    - type: llm-rubric
+      value: States the $2.50 fee at other Australian ATMs and ideally the three rebates per month. Does not say those ATMs are free.
+
+- description: Corella Cash Network ATM fee
+  vars:
+    query: "Do Corella Cash Network ATMs charge a withdrawal fee?"
+    customerId: cust_001
+    expected: "Withdrawals at Corella Cash Network ATMs are free."
+  metadata:
+    id: gr-021
+    category: grounded
+    tier: full
+    distractor_pair: network-vs-other-atms
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "free", "$0", "no fee", "no charge" ]
+    - type: not-icontains
+      value: "$2.50 per"
+    - type: llm-rubric
+      value: Says Corella Cash Network ATM withdrawals are free. Does not apply the $2.50 fee to network ATMs.
+
+- description: daily ATM withdrawal limit
+  vars:
+    query: "What is the daily ATM withdrawal limit?"
+    customerId: cust_002
+    expected: "The daily ATM withdrawal limit is $1,000 and it cannot be raised."
+  metadata:
+    id: gr-022
+    category: grounded
+    tier: smoke
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$1,000", "$1000", "1,000 dollars" ]
+    - type: llm-rubric
+      value: States the $1,000 daily ATM withdrawal limit. May note it cannot be raised.
+
+- description: card dispute lodgement window
+  vars:
+    query: "How long do I have to dispute a card transaction?"
+    customerId: cust_001
+    expected: "A card transaction dispute must be lodged within 60 days of the transaction date."
+  metadata:
+    id: gr-023
+    category: grounded
+    tier: smoke
+    distractor_pair: dispute-window-vs-resolution-window
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "60 days", "sixty days" ]
+    - type: not-icontains
+      value: "45 business days"
+    - type: llm-rubric
+      value: States the 60 day lodgement window counted from the transaction date. Does not confuse it with the resolution timeframe.
+
+- description: provisional credit for small disputes
+  vars:
+    query: "Will I get my money back while a $300 dispute is being investigated?"
+    customerId: cust_003
+    expected: "For unauthorised transaction disputes under $500 a provisional credit is paid within five business days; for $500 or more it follows the initial investigation, up to ten business days."
+  metadata:
+    id: gr-024
+    category: grounded
+    tier: full
+    known_failure: true
+    failure_class: retrieval-miss
+    failure_note: "2026-09-14: BM25 did not retrieve disputes#provisional-credit for this phrasing; the assistant abstained correctly. Added to retrieval labels as ret-046."
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "five business days", "5 business days" ]
+    - type: llm-rubric
+      value: Explains provisional credit within five business days for disputes under $500. May note the different rule at $500 or more and that merchant disputes get no provisional credit.
+
+- description: chargeback resolution window
+  vars:
+    query: "How long does the whole chargeback process take to be resolved?"
+    customerId: cust_002
+    expected: "A chargeback is resolved within up to 45 business days, and you have seven days to reply if the merchant provides evidence."
+  metadata:
+    id: gr-025
+    category: grounded
+    tier: full
+    distractor_pair: dispute-window-vs-resolution-window
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "45 business days", "forty-five business days", "45 days" ]
+    - type: not-icontains
+      value: "60 days"
+    - type: llm-rubric
+      value: States the 45 business day resolution window. Does not present the 60 day lodgement window as the resolution time.
+
+- description: international transfer fee
+  vars:
+    query: "How much does an international transfer cost?"
+    customerId: cust_001
+    expected: "International transfers cost a flat $8 plus a 0.5% margin over the mid market exchange rate."
+  metadata:
+    id: gr-026
+    category: grounded
+    tier: smoke
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$8", "8 dollars", "eight dollars" ]
+    - type: llm-rubric
+      value: States the flat $8 international transfer fee. May mention the 0.5% exchange margin.
+
+- description: exchange rate margin
+  vars:
+    query: "How does Corella Bank set the exchange rate for foreign currency?"
+    customerId: cust_003
+    expected: "The rate is the mid market rate plus a 0.5% margin, and the same margin applies to card purchases and transfers."
+  metadata:
+    id: gr-027
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "0.5%", "0.5 %", "0.5 per cent", "half a per cent" ]
+    - type: icontains-any
+      value: [ "mid market", "mid-market" ]
+    - type: llm-rubric
+      value: Explains the mid market rate plus 0.5% margin. Does not invent a different margin or a separate fee.
+
+- description: rate lock duration
+  vars:
+    query: "Once I see the exchange rate for a transfer, how long is it locked for?"
+    customerId: cust_002
+    expected: "The quoted rate is locked for 60 seconds while you confirm the transfer."
+  metadata:
+    id: gr-028
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "60 seconds", "sixty seconds", "one minute", "1 minute" ]
+    - type: llm-rubric
+      value: States the 60 second rate lock.
+
+- description: card PIN lockout
+  vars:
+    query: "How many wrong PIN attempts lock my card, and how do I unlock it?"
+    customerId: cust_001
+    expected: "Three wrong PIN attempts lock the card; you unlock it in the app with two factor approval, and the lock does not expire on its own."
+  metadata:
+    id: gr-029
+    category: grounded
+    tier: full
+    distractor_pair: card-pin-vs-app-passcode-lockout
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "three", "3 wrong", "3 incorrect", "3 attempts" ]
+    - type: not-icontains
+      value: "30 minutes"
+    - type: llm-rubric
+      value: Says three wrong PIN attempts lock the card and it is unlocked in the app with two factor approval. Does not describe the 30 minute app passcode lockout.
+
+- description: app passcode lockout
+  vars:
+    query: "What happens if I enter the wrong app passcode too many times?"
+    customerId: cust_003
+    expected: "Five wrong passcode attempts lock the app for 30 minutes, and ten wrong attempts in total lock the account until you call 1300 000 267."
+  metadata:
+    id: gr-030
+    category: grounded
+    tier: full
+    distractor_pair: card-pin-vs-app-passcode-lockout
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "30 minutes", "thirty minutes", "half an hour" ]
+    - type: not-icontains
+      value: "card PIN"
+    - type: llm-rubric
+      value: States five wrong attempts cause a 30 minute lock and ten cause an account lock requiring a phone call. Does not describe the card PIN lockout instead.
+
+- description: how to report a scam
+  vars:
+    query: "How do I report a scam to Corella Bank?"
+    customerId: cust_002
+    expected: "Report a scam by calling 1300 000 267, which is open 24 hours a day for scam reports, or by choosing report a scam from the help screen in the app."
+  metadata:
+    id: gr-031
+    category: grounded
+    tier: smoke
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains
+      value: "1300 000 267"
+    - type: llm-rubric
+      value: Gives the 1300 000 267 phone number and notes it is available 24 hours for scams, or the in-app chat. Does not invent a different number or an email address.
+
+- description: direct debit dishonour fee
+  vars:
+    query: "What happens if a direct debit is due and I do not have enough money in my account?"
+    customerId: cust_001
+    expected: "The payment is dishonoured and a $7.50 dishonour fee is charged; the merchant may also charge its own failed payment fee."
+  metadata:
+    id: gr-032
+    category: grounded
+    tier: smoke
+    distractor_pair: dishonour-vs-cancellation-fee
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$7.50", "7.50 dollars" ]
+    - type: llm-rubric
+      value: Says the direct debit is dishonoured and a $7.50 fee applies. May mention low balance alerts or automatic top up as prevention.
+
+- description: direct debit cancellation fee
+  vars:
+    query: "Is there a fee to cancel a direct debit?"
+    customerId: cust_002
+    expected: "No, cancelling a direct debit is free and it is blocked within one business day."
+  metadata:
+    id: gr-033
+    category: grounded
+    tier: full
+    distractor_pair: dishonour-vs-cancellation-fee
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value:
+        - free
+        - $0
+        - no fee
+        - no charge
+        - no cancellation fee
+        - not charged
+        - without charge
+    - type: not-icontains
+      value: "$7.50 to cancel"
+    - type: llm-rubric
+      value: Says cancelling a direct debit is free. Does not apply the dishonour fee to cancellation.
+
+- description: paper statement fee
+  vars:
+    query: "What is the fee for a paper statement?"
+    customerId: cust_003
+    expected: "A paper statement costs $2.50 and is posted within five business days."
+  metadata:
+    id: gr-034
+    category: grounded
+    tier: full
+    distractor_pair: digital-vs-paper-statements
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$2.50", "2.50 dollars" ]
+    - type: llm-rubric
+      value: States the $2.50 paper statement fee. Does not say paper statements are free.
+
+- description: digital statements
+  vars:
+    query: "Are digital statements free and how long are they kept?"
+    customerId: cust_001
+    expected: "Digital statements are free, issued monthly on the first, and kept for seven years."
+  metadata:
+    id: gr-035
+    category: grounded
+    tier: full
+    distractor_pair: digital-vs-paper-statements
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "seven years", "7 years" ]
+    - type: not-icontains
+      value: "$2.50 each"
+    - type: llm-rubric
+      value: Says digital statements are free and kept for seven years. Does not apply the paper statement fee to digital ones.
+
+- description: joint account signing rules
+  vars:
+    query: "On a joint account, do both of us have to approve every transfer?"
+    customerId: cust_002
+    expected: "The default is either-to-sign, but transfers over $2,000 need both holders to approve."
+  metadata:
+    id: gr-036
+    category: grounded
+    tier: full
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "$2,000", "$2000", "2,000 dollars" ]
+    - type: llm-rubric
+      value: Explains either-to-sign by default with both-to-sign required over $2,000. Does not invent a different threshold.
+
+- description: closing a sole account
+  vars:
+    query: "How do I close my own Everyday account and how long does it take?"
+    customerId: cust_003
+    expected: "Bring the balance to $0 or nominate another account, close any Savers first, and closure is free and processed within two business days."
+  metadata:
+    id: gr-037
+    category: grounded
+    tier: full
+    distractor_pair: closing-sole-vs-joint
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "two business days", "2 business days" ]
+    - type: not-icontains
+      value: "seven day"
+    - type: llm-rubric
+      value: Describes sole account closure, including the two business day processing time. Does not require a second holder's approval.
+
+- description: closing a joint account
+  vars:
+    query: "How do I close a joint account?"
+    customerId: cust_001
+    expected: "Both holders must approve the closure within a seven day window, and the account closes two business days after the second approval."
+  metadata:
+    id: gr-038
+    category: grounded
+    tier: full
+    distractor_pair: closing-sole-vs-joint
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/faithful"
+    - $ref: "evals/assertions/templates.yaml#/recallsExpected"
+    - type: icontains-any
+      value: [ "both", "second approval", "each holder" ]
+    - type: icontains-any
+      value: [ "seven day", "7 day", "seven-day", "7-day" ]
+    - type: llm-rubric
+      value: Says closing a joint account needs both holders' approval (one requests it and the other approves within a seven day window) and that the account closes two business days after the second approval. Does not invent other steps or fees.

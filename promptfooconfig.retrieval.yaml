@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Retrieval-only evals: the provider runs in retrieval mode, so no LLM is called and no key
+# is needed. Kept as a separate config because promptfoo dereferences `file://` strings inside
+# test cases, which rules out a per-test provider override pointing at the TypeScript provider.
+description: Corella Bank retrieval evals (BM25 recall@6 and MRR, deterministic)
+
+prompts:
+  - "{{query}}"
+
+providers:
+  - id: file://src/eval/provider.ts
+    label: neobank-retrieval
+    config:
+      mode: retrieval
+      retrieval:
+        k: 6
+        minScore: 0
+
+defaultTest:
+  options:
+    transform: output
+
+tests:
+  - file://evals/tests/retrieval.yaml
+
+evaluateOptions:
+  maxConcurrency: 8
+
+outputPath: results/retrieval.json

@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+results/*
+!results/.gitkeep
+!results/summary-*.json
+!results/retrieval-metrics.json
+*.log
+.DS_Store
+
+# Private planning notes, never published
+SESSION-HANDOFF.md
+PLAN-promptfoo-eval-suite.md
+evals/calibration/tests.generated.yaml

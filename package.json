@@ -1,0 +1,41 @@
+{
+  "name": "llm-eval-harness",
+  "version": "0.1.0",
+  "description": "Offline evaluation suite (promptfoo) for a small RAG and tool-calling support assistant over a fictional neobank corpus",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Brad Hetherington",
+  "engines": {
+    "node": ">=22.22.0",
+    "bun": ">=1.3.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "promptfoo": "promptfoo",
+    "eval:smoke": "promptfoo eval --env-file .env -c promptfooconfig.yaml --filter-metadata tier=smoke --max-concurrency 4 -o results/smoke.json -o results/smoke.html",
+    "eval:full": "promptfoo eval --env-file .env -c promptfooconfig.yaml --no-cache --max-concurrency 3 -o results/full.json -o results/full.html",
+    "eval:view": "promptfoo view",
+    "retrieval:metrics": "bun scripts/retrieval-metrics.ts",
+    "calibrate": "bun scripts/calibrate-judge.ts",
+    "ask": "bun scripts/ask.ts",
+    "results:append": "bun scripts/summarise-results.ts",
+    "eval:retrieval": "promptfoo eval -c promptfooconfig.retrieval.yaml --no-cache -o results/retrieval.json",
+    "eval:validate": "promptfoo validate -c promptfooconfig.yaml && promptfoo validate -c promptfooconfig.retrieval.yaml && promptfoo validate -c promptfooconfig.calibration.yaml"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.39.0",
+    "promptfoo": "0.123.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.0"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
+  }
+}

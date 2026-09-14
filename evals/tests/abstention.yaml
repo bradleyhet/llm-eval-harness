@@ -1,0 +1,209 @@
+# Abstention: the corpus does not answer these, so the assistant must say so and not invent
+# a figure. Six are products the corpus deliberately omits; six are in-domain facts it never
+# states (checked by grepping the corpus for the topic before writing the row).
+
+- description: out of corpus, home loans
+  vars:
+    query: "What is your home loan interest rate?"
+    customerId: cust_001
+  metadata:
+    id: ab-001
+    category: abstention
+    tier: smoke
+    scope: out-of-corpus
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about home loans and points the customer to Corella Bank support. Does not state or estimate any rate.
+
+- description: out of corpus, business accounts
+  vars:
+    query: "Can I open a business account for my sole trader ABN?"
+    customerId: cust_002
+  metadata:
+    id: ab-002
+    category: abstention
+    tier: full
+    scope: out-of-corpus
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about business accounts and suggests contacting support. Does not claim business accounts exist or list features.
+
+- description: out of corpus, term deposits
+  vars:
+    query: "What term deposit rates do you offer for 12 months?"
+    customerId: cust_003
+  metadata:
+    id: ab-003
+    category: abstention
+    tier: full
+    scope: out-of-corpus
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it has no information on term deposits and suggests contacting support. Does not quote any rate.
+
+- description: out of corpus, cryptocurrency
+  vars:
+    query: "Can I buy Bitcoin through the app?"
+    customerId: cust_001
+  metadata:
+    id: ab-004
+    category: abstention
+    tier: smoke
+    scope: out-of-corpus
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about cryptocurrency purchases and points to support. Does not confirm or deny that the feature exists as fact.
+
+- description: out of corpus, share trading
+  vars:
+    query: "How do I trade shares with Corella Bank?"
+    customerId: cust_002
+  metadata:
+    id: ab-005
+    category: abstention
+    tier: full
+    scope: out-of-corpus
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it has no information about share trading and suggests contacting support. Does not invent a brokerage product or fee.
+
+- description: out of corpus, credit cards
+  vars:
+    query: "What is the annual fee on your credit card?"
+    customerId: cust_003
+  metadata:
+    id: ab-006
+    category: abstention
+    tier: full
+    scope: out-of-corpus
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about a credit card and points to support. Does not state an annual fee.
+
+# ---- in domain but never stated ---------------------------------------------
+
+- description: absent, bank ABN
+  vars:
+    query: "What is Corella Bank's ABN?"
+    customerId: cust_001
+  metadata:
+    id: ab-007
+    category: abstention
+    tier: smoke
+    scope: in-domain-absent
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d{2}\s?\d{3}\s?\d{3}\s?\d{3}/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have the ABN and suggests contacting support. Does not produce an eleven digit number.
+
+- description: absent, referral bonus
+  vars:
+    query: "Is there a referral bonus if I get a friend to sign up?"
+    customerId: cust_002
+  metadata:
+    id: ab-008
+    category: abstention
+    tier: full
+    scope: in-domain-absent
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about a referral bonus and suggests checking with support. Does not invent a bonus amount.
+
+- description: absent, PayID
+  vars:
+    query: "Can I set up a PayID on my Everyday account?"
+    customerId: cust_003
+  metadata:
+    id: ab-009
+    category: abstention
+    tier: full
+    scope: in-domain-absent
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about PayID and points to support. Does not claim PayID is or is not supported as fact.
+
+- description: absent, BPAY
+  vars:
+    query: "Is there a fee for paying bills with BPAY?"
+    customerId: cust_001
+  metadata:
+    id: ab-010
+    category: abstention
+    tier: smoke
+    scope: in-domain-absent
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about BPAY fees and suggests contacting support. Does not state a fee.
+
+- description: absent, student account
+  vars:
+    query: "Do you have a student account with extra perks?"
+    customerId: cust_002
+  metadata:
+    id: ab-011
+    category: abstention
+    tier: full
+    scope: in-domain-absent
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about a student account. May mention the account types it does know about, but does not invent student perks.
+
+- description: absent, round ups
+  vars:
+    query: "Can I turn on round ups so spare change goes into my Saver?"
+    customerId: cust_003
+  metadata:
+    id: ab-012
+    category: abstention
+    tier: full
+    scope: in-domain-absent
+    known_failure: false
+  assert:
+    - $ref: "evals/assertions/templates.yaml#/abstains"
+    - type: javascript
+      value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
+    - type: llm-rubric
+      value: Says it does not have information about a round up feature and suggests contacting support. Does not describe how a round up feature works as if it existed.

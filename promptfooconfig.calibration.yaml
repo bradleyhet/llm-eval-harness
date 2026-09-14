@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+# Judge calibration: the echo provider returns each human-labelled answer verbatim, the
+# context-faithfulness grader scores it against the resolved chunk text, and
+# scripts/calibrate-judge.ts compares the scores with the human labels.
+description: Judge calibration against human-labelled answers
+
+prompts:
+  - "{{answer}}"
+
+providers:
+  - echo
+
+defaultTest:
+  options:
+    provider:
+      text:
+        id: openrouter:anthropic/claude-sonnet-5
+        config:
+          temperature: 0
+          max_tokens: 1024
+  assert:
+    # Threshold 0 so every row "passes"; the script sweeps thresholds over the raw scores.
+    - type: context-faithfulness
+      threshold: 0
+      # Keep in step with evals/assertions/templates.yaml#/faithful.
+      rubricPrompt:
+        - file://evals/assertions/faithfulness-longform.txt
+        - file://evals/assertions/faithfulness-nli.txt
+
+# Written by scripts/calibrate-judge.ts from evals/calibration/labelled-answers.yaml.
+tests: file://evals/calibration/tests.generated.yaml
+
+outputPath: results/calibration.json

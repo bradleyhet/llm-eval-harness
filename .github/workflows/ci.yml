@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  PROMPTFOO_DISABLE_TELEMETRY: "1"
+
+jobs:
+  quality:
+    name: Lint, typecheck, unit tests, retrieval metrics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Retrieval regression gate
+        run: npm run retrieval:metrics
+      - name: Retrieval evals through promptfoo (no LLM, no key)
+        run: npx promptfoo eval -c promptfooconfig.retrieval.yaml --no-cache -o results/retrieval.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retrieval-metrics
+          path: |
+            results/retrieval-metrics.json
+            results/retrieval.json
+
+  smoke-eval:
+    name: Smoke eval (promptfoo, tier=smoke)
+    needs: quality
+    # Secrets are not available to fork PRs, so only run on pushes and same-repo PRs.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Cache promptfoo responses
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/promptfoo
+          key: promptfoo-${{ hashFiles('promptfooconfig.yaml', 'evals/**', 'src/**', 'corpus/**') }}
+          restore-keys: promptfoo-
+      - name: Run smoke tier
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: >
+          npx promptfoo eval -c promptfooconfig.yaml
+          --filter-metadata tier=smoke
+          --max-concurrency 4
+          -o results/smoke.json -o results/smoke.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-eval
+          path: |
+            results/smoke.json
+            results/smoke.html
