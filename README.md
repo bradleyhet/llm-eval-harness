@@ -5,7 +5,9 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 | | |
 |---|---|
 | Cases | 142; 138 pass (97%), the 4 failures are documented known failures |
-| Retrieval | BM25 recall@6 0.90, MRR 0.83 over 48 hand-labelled queries; the embedding retriever scores 0.95 and 0.91 on the same queries |
+| Retrieval dataset | 48 hand-labelled queries (16 easy, 20 paraphrase, 12 on distractor pairs) |
+| Recall@6 / MRR | 0.896 / 0.826 for BM25, the retriever the assistant runs on; 0.948 / 0.910 for the embedding retriever on the same queries |
+| Known retrieval misses | 3 of 48 for BM25, kept in the suite and listed under Known failures; the embedding retriever hits all three and misses two others |
 | Judge | agreement 0.95, Cohen's kappa 0.90 against 20 human labels |
 | Guardrails | 100% of regex-layer attacks blocked; 0 of 3 benign lookalikes blocked |
 | Cost | $0.04 per full run for the system under test, about $0.45 with the judge |
@@ -157,7 +159,7 @@ From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 3
 
 | | |
 |---|---|
-| Cases | 138 of 142 pass (97%); grounded 35/38, retrieval 47/47, tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
+| Cases | 138 of 142 pass their gating assertions (97%); grounded 35/38, retrieval 44 of 47 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind the three grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
 | Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed above; no unexpected failures |
 | Retrieval | BM25 recall@6 0.90, MRR 0.83 over the 48 labelled queries now in the suite (deterministic, see Methodology); embedding 0.95 and 0.91, hybrid 0.96 and 0.87 |
 | Guardrails | 100% of regex-layer attacks blocked at the input guard, 0 of 3 benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
