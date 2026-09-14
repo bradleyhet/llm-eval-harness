@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-09-14T07:14:50.700Z",
+  "generatedAt": "2026-09-14T07:51:22.096Z",
   "retriever": "bm25",
   "k": 6,
   "minScore": 0,
   "chunks": 124,
-  "queries": 47,
+  "queries": 48,
   "overall": {
-    "n": 47,
-    "recall": 0.8936170212765957,
-    "hit1": 0.7872340425531915,
-    "hit3": 0.851063829787234,
-    "hitK": 0.9361702127659575,
-    "mrr": 0.8329787234042555,
-    "precision": 0.18794326241134754,
-    "recall_at_6": 0.8936170212765957
+    "n": 48,
+    "recall": 0.8958333333333334,
+    "hit1": 0.7708333333333334,
+    "hit3": 0.8541666666666666,
+    "hitK": 0.9375,
+    "mrr": 0.8260416666666668,
+    "precision": 0.1875,
+    "recall_at_6": 0.8958333333333334
   },
   "byDifficulty": {
     "easy": {
@@ -26,13 +26,13 @@
       "precision": 0.23958333333333326
     },
     "paraphrase": {
-      "n": 19,
-      "recall": 0.7894736842105263,
-      "hit1": 0.6842105263157895,
-      "hit3": 0.7368421052631579,
-      "hitK": 0.8421052631578947,
-      "mrr": 0.7298245614035087,
-      "precision": 0.15789473684210523
+      "n": 20,
+      "recall": 0.8,
+      "hit1": 0.65,
+      "hit3": 0.75,
+      "hitK": 0.85,
+      "mrr": 0.7183333333333333,
+      "precision": 0.15833333333333327
     },
     "distractor": {
       "n": 12,
@@ -889,6 +889,24 @@
         "opening-an-account#the-sign-up-steps",
         "joint-accounts#opening-a-joint-account",
         "account-types#joint-everyday-account"
+      ]
+    },
+    {
+      "id": "ret-048",
+      "difficulty": "paraphrase",
+      "recall": 1,
+      "hit1": false,
+      "hit3": true,
+      "hitK": true,
+      "rr": 0.5,
+      "precision": 0.16666666666666666,
+      "retrieved": [
+        "scam-reporting#reporting-impersonation-attempts",
+        "scam-reporting#how-to-report-a-scam",
+        "scam-reporting#reimbursement",
+        "scam-reporting#overview",
+        "scam-reporting#what-corella-bank-does-next",
+        "security-and-2fa#keeping-your-account-safe"
       ]
     }
   ]

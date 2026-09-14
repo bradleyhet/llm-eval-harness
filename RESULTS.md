@@ -21,6 +21,9 @@ Column notes:
 | 2026-09-14 | bm25, same settings, 3 phrasings added from full-run triage (ret-045 to ret-047) | 124 | 47 | 0.894 | 0.833 | 1.000 | 0.789 | 0.917 |
 | 2026-09-14 | embedding (gemini-embedding-001 via OpenRouter, 768d, cosine, minScore 0) | 124 | 47 | 0.968 | 0.929 | 0.969 | 0.947 | 1.000 |
 | 2026-09-14 | hybrid (reciprocal rank fusion k 60, depth 20, over bm25 + embedding) | 124 | 47 | 0.957 | 0.885 | 1.000 | 0.895 | 1.000 |
+| 2026-09-14 | bm25, same settings, ret-048 added from the embedding-retriever full run (gr-031) | 124 | 48 | 0.896 | 0.826 | 1.000 | 0.800 | 0.917 |
+| 2026-09-14 | embedding, same settings, 48 queries | 124 | 48 | 0.948 | 0.910 | 0.969 | 0.900 | 1.000 |
+| 2026-09-14 | hybrid, same settings, 48 queries | 124 | 48 | 0.958 | 0.870 | 1.000 | 0.900 | 1.000 |
 
 ## Runs
 

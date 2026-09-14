@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-09-14T07:16:06.073Z",
+  "generatedAt": "2026-09-14T07:51:22.121Z",
   "retriever": "hybrid",
   "embeddingModel": "google/gemini-embedding-001",
   "embeddingDimensions": 768,
   "k": 6,
   "minScore": 0,
   "chunks": 124,
-  "queries": 47,
+  "queries": 48,
   "overall": {
-    "n": 47,
-    "recall": 0.9574468085106383,
-    "hit1": 0.8085106382978723,
-    "hit3": 0.9574468085106383,
-    "hitK": 0.9787234042553191,
-    "mrr": 0.8847517730496453,
-    "precision": 0.20567375886524816,
-    "recall_at_6": 0.9574468085106383
+    "n": 48,
+    "recall": 0.9583333333333334,
+    "hit1": 0.7916666666666666,
+    "hit3": 0.9375,
+    "hitK": 0.9791666666666666,
+    "mrr": 0.8697916666666665,
+    "precision": 0.20486111111111105,
+    "recall_at_6": 0.9583333333333334
   },
   "byDifficulty": {
     "easy": {
@@ -28,13 +28,13 @@
       "precision": 0.23958333333333326
     },
     "paraphrase": {
-      "n": 19,
-      "recall": 0.8947368421052632,
-      "hit1": 0.7368421052631579,
-      "hit3": 0.9473684210526315,
-      "hitK": 0.9473684210526315,
-      "mrr": 0.8421052631578947,
-      "precision": 0.1842105263157894
+      "n": 20,
+      "recall": 0.9,
+      "hit1": 0.7,
+      "hit3": 0.9,
+      "hitK": 0.95,
+      "mrr": 0.8083333333333333,
+      "precision": 0.18333333333333326
     },
     "distractor": {
       "n": 12,
@@ -891,6 +891,24 @@
         "opening-an-account#the-sign-up-steps",
         "kyc-process#overview",
         "opening-an-account#what-you-need-before-you-start"
+      ]
+    },
+    {
+      "id": "ret-048",
+      "difficulty": "paraphrase",
+      "recall": 1,
+      "hit1": false,
+      "hit3": false,
+      "hitK": true,
+      "rr": 0.16666666666666666,
+      "precision": 0.16666666666666666,
+      "retrieved": [
+        "scam-reporting#reporting-impersonation-attempts",
+        "scam-reporting#overview",
+        "scam-reporting#reimbursement",
+        "scam-reporting#what-corella-bank-does-next",
+        "security-and-2fa#keeping-your-account-safe",
+        "scam-reporting#how-to-report-a-scam"
       ]
     }
   ]

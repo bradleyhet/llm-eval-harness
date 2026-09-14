@@ -309,3 +309,9 @@
   difficulty: paraphrase
   relevantChunkIds:
     - opening-an-account#starter-limits-before-verification
+# Added 2026-09-14 from the full run on the embedding retriever: a phrasing it misses and BM25 hits.
+- id: ret-048
+  query: "How do I report a scam to Corella Bank?"
+  difficulty: paraphrase
+  relevantChunkIds:
+    - scam-reporting#how-to-report-a-scam

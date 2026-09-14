@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-09-14T07:16:06.060Z",
+  "generatedAt": "2026-09-14T07:51:22.107Z",
   "retriever": "embedding",
   "embeddingModel": "google/gemini-embedding-001",
   "embeddingDimensions": 768,
   "k": 6,
   "minScore": 0,
   "chunks": 124,
-  "queries": 47,
+  "queries": 48,
   "overall": {
-    "n": 47,
-    "recall": 0.9680851063829787,
-    "hit1": 0.8936170212765957,
-    "hit3": 0.9787234042553191,
-    "hitK": 0.9787234042553191,
-    "mrr": 0.9290780141843971,
-    "precision": 0.20921985815602834,
-    "recall_at_6": 0.9680851063829787
+    "n": 48,
+    "recall": 0.9479166666666666,
+    "hit1": 0.875,
+    "hit3": 0.9583333333333334,
+    "hitK": 0.9583333333333334,
+    "mrr": 0.9097222222222222,
+    "precision": 0.20486111111111108,
+    "recall_at_6": 0.9479166666666666
   },
   "byDifficulty": {
     "easy": {
@@ -28,13 +28,13 @@
       "precision": 0.2291666666666666
     },
     "paraphrase": {
-      "n": 19,
-      "recall": 0.9473684210526315,
-      "hit1": 0.8421052631578947,
-      "hit3": 0.9473684210526315,
-      "hitK": 0.9473684210526315,
-      "mrr": 0.8859649122807018,
-      "precision": 0.20175438596491221
+      "n": 20,
+      "recall": 0.9,
+      "hit1": 0.8,
+      "hit3": 0.9,
+      "hitK": 0.9,
+      "mrr": 0.8416666666666668,
+      "precision": 0.1916666666666666
     },
     "distractor": {
       "n": 12,
@@ -891,6 +891,24 @@
         "kyc-process#privacy-of-your-documents",
         "kyc-process#ongoing-verification-checks",
         "kyc-process#manual-review"
+      ]
+    },
+    {
+      "id": "ret-048",
+      "difficulty": "paraphrase",
+      "recall": 0,
+      "hit1": false,
+      "hit3": false,
+      "hitK": false,
+      "rr": 0,
+      "precision": 0,
+      "retrieved": [
+        "scam-reporting#overview",
+        "scam-reporting#reporting-impersonation-attempts",
+        "scam-reporting#reimbursement",
+        "scam-reporting#what-corella-bank-does-next",
+        "security-and-2fa#keeping-your-account-safe",
+        "account-types#getting-help"
       ]
     }
   ]

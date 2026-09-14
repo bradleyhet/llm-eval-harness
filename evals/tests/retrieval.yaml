@@ -998,3 +998,27 @@
     - type: javascript
       value: file://evals/assertions/retrieval-metrics.ts:mrr
       metric: mrr
+
+# Added 2026-09-14 from the full run on the embedding retriever (grounded case gr-031): the bank's
+# name in the query pulls the overview above the how-to section for the embedding retriever; BM25 hits it.
+- description: "paraphrase: How do I report a scam to Corella Bank?"
+  vars:
+    query: How do I report a scam to Corella Bank?
+    customerId: cust_001
+    relevantChunkIds: '["scam-reporting#how-to-report-a-scam"]'
+  options:
+    transform: output
+  metadata:
+    id: ret-048
+    category: retrieval
+    tier: full
+    difficulty: paraphrase
+    known_failure: false
+  assert:
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:recallAt6
+      threshold: 0.5
+      metric: recall_at_6
+    - type: javascript
+      value: file://evals/assertions/retrieval-metrics.ts:mrr
+      metric: mrr
