@@ -21,7 +21,7 @@ import {
   EMBEDDING_MODEL,
   EmbeddingCache,
   createEmbeddingRetriever,
-  normalise,
+  fillEmbeddingCache,
 } from "../src/retrieval/embedding-retriever.js";
 import { hitAtK, mean, precisionAtK, recallAtK, reciprocalRank } from "../src/retrieval/metrics.js";
 import { createBm25Retriever, createHybridRetriever, indexText, type Retriever } from "../src/retrieval/retriever.js";
@@ -116,20 +116,9 @@ async function loadEmbeddings(): Promise<EmbeddingCache> {
     );
     process.exit(1);
   }
-  const embedder = createOpenRouterEmbedder({ apiKey, title: "llm-eval-harness" });
-  let cost = 0;
-  let tokens = 0;
-  const batchSize = 32;
-  for (let i = 0; i < missing.length; i += batchSize) {
-    const batch = missing.slice(i, i + batchSize);
-    const res = await embedder.embed({ model: EMBEDDING_MODEL, input: batch, dimensions: EMBEDDING_DIMENSIONS });
-    batch.forEach((text, j) => cache.set(text, normalise(res.vectors[j] ?? [])));
-    cost += res.usage.cost;
-    tokens += res.usage.promptTokens;
-  }
-  cache.save();
+  const filled = await fillEmbeddingCache(cache, texts, createOpenRouterEmbedder({ apiKey, title: "llm-eval-harness" }));
   console.log(
-    `Embeddings: fetched ${missing.length} vectors (${tokens} tokens, $${cost.toFixed(4)}); cache now ${cache.size} vectors in ${cache.path}.\n`,
+    `Embeddings: fetched ${filled.fetched} vectors (${filled.promptTokens} tokens, $${filled.cost.toFixed(4)}); cache now ${cache.size} vectors in ${cache.path}.\n`,
   );
   return cache;
 }

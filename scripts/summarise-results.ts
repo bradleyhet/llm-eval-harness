@@ -72,17 +72,23 @@ const byCategory = Object.fromEntries(
   }),
 );
 
+/**
+ * Mean of a named metric over all rows. Component scores are preferred because promptfoo
+ * multiplies `namedScores` by the assertion weight, which zeroes the weight-0 assertions on
+ * known-failure rows even when they score 1; `namedScores` is only the fallback.
+ */
 function namedMean(metric: string): number | null {
   const values: number[] = [];
   for (const r of rows) {
-    const direct = r.namedScores?.[metric];
-    if (typeof direct === "number") {
-      values.push(direct);
+    const components = (r.gradingResult?.componentResults ?? []).filter(
+      (c) => c.assertion?.metric === metric && typeof c.score === "number",
+    );
+    if (components.length > 0) {
+      for (const c of components) values.push(c.score!);
       continue;
     }
-    for (const c of r.gradingResult?.componentResults ?? []) {
-      if (c.assertion?.metric === metric && typeof c.score === "number") values.push(c.score);
-    }
+    const direct = r.namedScores?.[metric];
+    if (typeof direct === "number") values.push(direct);
   }
   return values.length === 0 ? null : values.reduce((a, b) => a + b, 0) / values.length;
 }
@@ -104,7 +110,10 @@ const answerRows = rows.filter((r) => respMeta(r).mode === "answer");
 const totalCost = rows.reduce((s, r) => s + (r.cost ?? r.response?.cost ?? 0), 0);
 const latencies = answerRows.map((r) => Number(respMeta(r).latencyMs ?? r.latencyMs ?? 0)).filter((n) => n > 0);
 const meanLatency = latencies.length === 0 ? null : latencies.reduce((a, b) => a + b, 0) / latencies.length;
-const sutModel = String(answerRows.map((r) => respMeta(r).model).find(Boolean) ?? process.env.SUT_MODEL ?? "unknown");
+const sutBase = String(answerRows.map((r) => respMeta(r).model).find(Boolean) ?? process.env.SUT_MODEL ?? "unknown");
+// The retriever is part of the system under test; only a non-default one is worth a mention in the row.
+const retrieverName = String(rows.map((r) => respMeta(r).retriever).find(Boolean) ?? "bm25");
+const sutModel = retrieverName === "bm25" ? sutBase : `${sutBase} (${retrieverName} retriever)`;
 const judgeModel = raw.config?.defaultTest?.options?.provider?.text?.id ?? process.env.JUDGE_MODEL ?? "unknown";
 const knownFailures = rows.filter((r) => meta(r).known_failure === true && !passed(r)).length;
 const unexpectedFailures = rows.filter((r) => meta(r).known_failure !== true && !passed(r));

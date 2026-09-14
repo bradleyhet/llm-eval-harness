@@ -19,6 +19,7 @@
     "eval:full": "promptfoo eval --env-file .env -c promptfooconfig.yaml --no-cache --max-concurrency 3 -o results/full.json -o results/full.html",
     "eval:view": "promptfoo view",
     "retrieval:metrics": "bun scripts/retrieval-metrics.ts",
+    "embed:cache": "bun scripts/embed-cache.ts",
     "calibrate": "bun scripts/calibrate-judge.ts",
     "ask": "bun scripts/ask.ts",
     "results:append": "bun scripts/summarise-results.ts",

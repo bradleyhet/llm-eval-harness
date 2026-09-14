@@ -8,7 +8,7 @@ Full per-case outputs live in the GitHub Actions artifacts, not in git; only the
 Column notes:
 
 - **pass** counts cases whose every assertion passed. Cases tagged `known_failure: true` in their metadata still count as failures here; they are listed in the README so they are never quietly dropped.
-- **recall@6** and **MRR** are the means of the named retrieval metrics over the retrieval category, BM25 over the committed corpus, so they are deterministic. The embedding and hybrid rows in the baseline table come from the committed vector cache in `evals/data/embeddings.json` and are equally deterministic.
+- **recall@6** and **MRR** are the means of the named retrieval metrics over the retrieval category, BM25 over the committed corpus, so they are deterministic. The embedding and hybrid rows in the baseline table come from the committed vector cache in `evals/data/embeddings.json` and are equally deterministic. They are read from each assertion's raw component score, because promptfoo scales `namedScores` by assertion weight and the known-failure rows carry a weight-0 recall assertion (fixed 2026-09-14; BM25 rows are unaffected because those rows scored 0 under BM25 anyway).
 - **catch / false-positive** is the guardrail catch rate over attack rows and the share of benign lookalike rows that a guard blocked.
 - **cost USD** is the sum OpenRouter reported for the system under test on this run; judge cost is not included.
 - **mean latency** is over answer-mode cases only and is meaningful only for `full` runs, which disable the cache.

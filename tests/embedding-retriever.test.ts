@@ -1,7 +1,6 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { parse as parseYaml } from "yaml";
-import { loadCorpus, type Chunk } from "../src/retrieval/chunk.js";
+import { collectEmbeddingTexts } from "../src/eval/embedding-texts.js";
+import type { Chunk } from "../src/retrieval/chunk.js";
 import {
   EMBEDDING_CACHE_PATH,
   EmbeddingCache,
@@ -99,19 +98,28 @@ describe("createHybridRetriever", () => {
   });
 });
 
-/** The committed cache must cover every corpus chunk and labelled query, or CI's comparison is stale. */
+/**
+ * The committed cache must cover every corpus chunk, labelled query and sanitised eval query,
+ * or CI's comparison and any RETRIEVER=embedding run is stale.
+ */
 describe("committed embedding cache", () => {
   const cache = EmbeddingCache.load(EMBEDDING_CACHE_PATH);
-  const chunks = loadCorpus("corpus");
-  const labels = parseYaml(readFileSync("evals/data/retrieval-labels.yaml", "utf8")) as Array<{ query: string }>;
+  const texts = collectEmbeddingTexts();
 
-  it("has a vector for every chunk and every query", () => {
-    const missing = cache.missing([...chunks.map(indexText), ...labels.map((l) => l.query)]);
-    expect(missing, "run `bun run retrieval:metrics --retriever embedding` with OPENROUTER_API_KEY set and commit evals/data/embeddings.json").toEqual([]);
+  it("gathers a plausible set of texts", () => {
+    expect(texts.chunkTexts.length).toBeGreaterThanOrEqual(80);
+    expect(texts.labelQueries.length).toBeGreaterThanOrEqual(35);
+    expect(texts.evalQueries.length).toBeGreaterThan(texts.labelQueries.length);
+    expect(texts.blockedEvalQueries).toBeGreaterThan(0);
+  });
+
+  it("has a vector for every chunk, labelled query and sanitised eval query", () => {
+    const missing = cache.missing(texts.all);
+    expect(missing, "run `npm run embed:cache` with OPENROUTER_API_KEY set and commit evals/data/embeddings.json").toEqual([]);
   });
 
   it("holds unit-length vectors of the declared width", () => {
-    const v = cache.get(indexText(chunks[0]!))!;
+    const v = cache.get(texts.chunkTexts[0]!)!;
     expect(v.length).toBe(cache.dimensions);
     expect(cosine(v, v)).toBeCloseTo(1);
     expect(Math.sqrt([...v].reduce((a, x) => a + x * x, 0))).toBeCloseTo(1, 4);

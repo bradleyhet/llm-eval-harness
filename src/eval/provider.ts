@@ -13,13 +13,22 @@ import { answer, type AnswerResult } from "../assistant/answer.js";
 import { createOpenRouterClient, type LlmClient } from "../assistant/openrouter.js";
 import { createFixtureStore } from "../fixtures/customers.js";
 import { loadCorpus } from "../retrieval/chunk.js";
+import { EmbeddingCache, createEmbeddingRetriever } from "../retrieval/embedding-retriever.js";
 import { createBm25Retriever, type Retriever } from "../retrieval/retriever.js";
+
+export type RetrieverName = "bm25" | "embedding";
 
 export interface ProviderConfig {
   mode?: "answer" | "retrieval";
   model?: string;
   corpusDir?: string;
-  retrieval?: { k?: number; minScore?: number };
+  /**
+   * `retriever` defaults to bm25, or to the RETRIEVER environment variable when set, so a whole
+   * suite can be re-run on the embedding retriever without editing the config. The embedding
+   * retriever reads evals/data/embeddings.json only; every query it sees must already be cached
+   * (see scripts/embed-cache.ts), or the case errors rather than silently retrieving nothing.
+   */
+  retrieval?: { k?: number; minScore?: number; retriever?: RetrieverName };
   maxToolRounds?: number;
   temperature?: number;
   maxTokens?: number;
@@ -38,14 +47,26 @@ interface ProviderResponse {
 }
 
 const retrievers = new Map<string, Retriever>();
-function getRetriever(corpusDir: string): Retriever {
-  const key = resolve(corpusDir);
+function getRetriever(corpusDir: string, name: RetrieverName): Retriever {
+  const dir = resolve(corpusDir);
+  const key = `${name}:${dir}`;
   let r = retrievers.get(key);
   if (!r) {
-    r = createBm25Retriever(loadCorpus(key));
+    if (name === "embedding") {
+      const cache = EmbeddingCache.load();
+      r = createEmbeddingRetriever(loadCorpus(dir), (text) => cache.get(text));
+    } else {
+      r = createBm25Retriever(loadCorpus(dir));
+    }
     retrievers.set(key, r);
   }
   return r;
+}
+
+function resolveRetrieverName(configured: RetrieverName | undefined): RetrieverName {
+  const name = configured ?? process.env.RETRIEVER ?? "bm25";
+  if (name !== "bm25" && name !== "embedding") throw new Error(`Unknown retriever "${name}" (expected bm25 or embedding)`);
+  return name;
 }
 
 let llmSingleton: LlmClient | undefined;
@@ -92,7 +113,8 @@ export default class NeobankAssistantProvider {
     const corpusDir = this.config.corpusDir ?? "corpus";
     const k = this.config.retrieval?.k ?? 6;
     const minScore = this.config.retrieval?.minScore ?? 0;
-    const retriever = getRetriever(corpusDir);
+    const retrieverName = resolveRetrieverName(this.config.retrieval?.retriever);
+    const retriever = getRetriever(corpusDir, retrieverName);
 
     if (this.config.mode === "retrieval") {
       const hits = retriever.search(query, { k, minScore });
@@ -100,7 +122,7 @@ export default class NeobankAssistantProvider {
       return {
         output: { retrievedIds, hits: hits.map((h) => ({ id: h.id, score: h.score, normalisedScore: h.normalisedScore })) },
         cost: 0,
-        metadata: { mode: "retrieval", retrievedIds, customerId },
+        metadata: { mode: "retrieval", retriever: retriever.name, retrievedIds, customerId },
       };
     }
 
@@ -139,6 +161,7 @@ export default class NeobankAssistantProvider {
       cost: result.cost,
       metadata: {
         mode: "answer",
+        retriever: retriever.name,
         blockedBy: result.blockedBy,
         blockedReason: result.blockedReason,
         toolCalls: result.toolCalls,

@@ -10,6 +10,7 @@
  */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import type { Embedder } from "../assistant/openrouter.js";
 import type { Chunk } from "./chunk.js";
 import { indexText, type RetrievedChunk, type Retriever } from "./retriever.js";
 
@@ -121,6 +122,36 @@ export class EmbeddingCache {
     const file: CacheFile = { model: this.model, dimensions: this.dimensions, encoding: "float32-le-base64", vectors };
     writeFileSync(this.path, `${JSON.stringify(file, null, 1)}\n`);
   }
+}
+
+export interface FillResult {
+  fetched: number;
+  promptTokens: number;
+  cost: number;
+}
+
+/**
+ * Embed every text in `texts` that the cache lacks, normalise, store and save.
+ * Returns zeros without touching the network when nothing is missing.
+ */
+export async function fillEmbeddingCache(
+  cache: EmbeddingCache,
+  texts: ReadonlyArray<string>,
+  embedder: Embedder,
+  batchSize = 32,
+): Promise<FillResult> {
+  const missing = cache.missing(texts);
+  const result: FillResult = { fetched: 0, promptTokens: 0, cost: 0 };
+  for (let i = 0; i < missing.length; i += batchSize) {
+    const batch = missing.slice(i, i + batchSize);
+    const res = await embedder.embed({ model: cache.model, input: batch, dimensions: cache.dimensions });
+    batch.forEach((text, j) => cache.set(text, normalise(res.vectors[j] ?? [])));
+    result.fetched += batch.length;
+    result.promptTokens += res.usage.promptTokens;
+    result.cost += res.usage.cost;
+  }
+  if (result.fetched > 0) cache.save();
+  return result;
 }
 
 export interface EmbeddingRetrieverOptions {
