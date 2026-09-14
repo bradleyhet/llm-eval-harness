@@ -31,6 +31,8 @@ const { values: args, positionals } = parseArgs({
     sha: { type: "string", default: "local" },
     tier: { type: "string", default: "full" },
     results: { type: "string", default: "RESULTS.md" },
+    /** Exit 1 when any case not tagged known_failure failed. Used by the nightly workflow. */
+    "fail-on-unexpected": { type: "boolean", default: false },
   },
 });
 
@@ -105,6 +107,7 @@ const meanLatency = latencies.length === 0 ? null : latencies.reduce((a, b) => a
 const sutModel = String(answerRows.map((r) => respMeta(r).model).find(Boolean) ?? process.env.SUT_MODEL ?? "unknown");
 const judgeModel = raw.config?.defaultTest?.options?.provider?.text?.id ?? process.env.JUDGE_MODEL ?? "unknown";
 const knownFailures = rows.filter((r) => meta(r).known_failure === true && !passed(r)).length;
+const unexpectedFailures = rows.filter((r) => meta(r).known_failure !== true && !passed(r));
 
 const summary = {
   generatedAt: new Date().toISOString(),
@@ -115,6 +118,8 @@ const summary = {
   passed: rows.filter(passed).length,
   passRate: pct(rows.filter(passed).length, rows.length),
   knownFailures,
+  unexpectedFailures: unexpectedFailures.length,
+  unexpectedFailureIds: unexpectedFailures.map((r) => String(meta(r).id ?? "?")),
   byCategory,
   retrieval: { recallAt6: namedMean("recall_at_6"), mrr: namedMean("mrr") },
   guardrails,
@@ -169,3 +174,9 @@ writeFileSync(resultsPath, doc);
 
 console.log(`Wrote ${summaryPath} and appended a row to ${resultsPath}`);
 console.log(`| ${row} |`);
+if (summary.unexpectedFailures > 0) {
+  console.log(`Unexpected failures (${summary.unexpectedFailures}): ${summary.unexpectedFailureIds.join(", ")}`);
+}
+if (args["fail-on-unexpected"] && summary.unexpectedFailures > 0) {
+  process.exit(1);
+}

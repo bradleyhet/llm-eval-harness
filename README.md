@@ -107,19 +107,19 @@ The three retrieval misses are the same paraphrase weakness the retrieval baseli
 
 CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml). The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
 
-From the first recorded full run (2026-09-14, local, cache off), details in [RESULTS.md](RESULTS.md):
+From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)), details in [RESULTS.md](RESULTS.md):
 
 | | |
 |---|---|
-| Cases | 135 of 142 pass (95%); grounded 32/38, retrieval 47/47, tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
-| Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed above |
+| Cases | 138 of 142 pass (97%); grounded 35/38, retrieval 47/47, tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
+| Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed above; no unexpected failures |
 | Retrieval | recall@6 0.89, MRR 0.83 over 47 labelled queries |
 | Guardrails | 100% of regex-layer attacks blocked at the input guard, 0% of benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
 | Judge | agreement 0.95, kappa 0.90 against 20 human labels at threshold 0.7 |
 | Cost | $0.04 for the system under test per full run; about $0.45 including the judge; a smoke run is under $0.25 |
-| Latency | p50 1.4 s, p95 3.0 s per answer, tool cases about 2.5 s |
+| Latency | mean 0.7 s per answer from GitHub's runners, 1.4 s p50 from a home connection; tool cases about 2.5 s |
 
-Run-to-run variance: across three full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip.
+Run-to-run variance: across three local full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip. The nightly goes red only when a case not tagged as a known failure fails.
 
 ## What this does and does not show
 

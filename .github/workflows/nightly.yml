@@ -51,8 +51,7 @@ jobs:
         with:
           commit_message: "results: nightly full eval ${{ github.sha }}"
           file_pattern: "RESULTS.md results/summary-*.json results/retrieval-metrics.json"
-      - name: Propagate eval failure
-        if: steps.eval.outcome == 'failure'
-        run: |
-          echo "Full eval had failing cases (see the full-eval artifact)."
-          exit 1
+      # Known failures (metadata.known_failure: true) are expected to fail and are listed in the
+      # README; the nightly goes red only when a case that is not tagged fails.
+      - name: Fail on unexpected failures
+        run: bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha ${{ github.sha }} --tier full --results /dev/null --fail-on-unexpected
