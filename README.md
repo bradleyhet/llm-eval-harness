@@ -4,8 +4,7 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 
 |                        |                                                                                                                                   |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Last full evaluation   | 138 of 142 passing (97%); the 4 failures are documented known failures                                                            |
-| Current evaluation set | 143 cases, including 48 labelled retrieval queries; 44 tagged smoke gate every push                                               |
+| Cases | 143; 138 pass (97%). The 5 failures are 4 documented known failures and 1 judge flip (gr-030) |
 | Retrieval dataset      | 48 hand-labelled queries (16 easy, 20 paraphrase, 12 on distractor pairs)                                                         |
 | Recall@6 / MRR         | 0.896 / 0.826 for BM25, the retriever the assistant runs on; 0.948 / 0.910 for the embedding retriever on the same queries        |
 | Known retrieval misses | 3 of 48 for BM25, kept in the suite and listed under Known failures; the embedding retriever hits all three and misses two others |
@@ -13,7 +12,7 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 | Guardrails             | 100% of regex-layer attacks blocked; 0 of 3 benign lookalikes blocked                                                             |
 | Cost                   | $0.04 per full run for the system under test, about $0.45 with the judge                                                          |
 
-Numbers are from the first nightly run on GitHub Actions on 2026-09-14 ([run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)); the full table is under [Latest results](#latest-results). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
+Numbers are from the nightly full run on GitHub Actions on 2026-09-14 ([run 34823813102](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34823813102), red because of the judge flip); the full table is under [Latest results](#latest-results). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
 
 The assistant under test answers questions about a fictional Australian neobank, Corella Bank, from a committed markdown corpus and four session-scoped tools. Everything here is fictional: the bank, its products, fees, limits, policies and customers. Nothing in this repository describes a real financial institution.
 
@@ -33,19 +32,19 @@ It does not show: answer relevance by embedding similarity (promptfoo's `similar
 
 The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
 
-From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)), details in [RESULTS.md](RESULTS.md):
+From the nightly full run on GitHub Actions on the current 143-case suite (2026-09-14, cache off, [run 34823813102](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34823813102)), details in [RESULTS.md](RESULTS.md):
 
 |                |                                                                                                                                                                                                                                                                                                                                        |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cases          | 138 of the 142 cases then in the suite pass their gating assertions (97%); grounded 35/38, retrieval 44 of 47 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind the three grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
-| Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed under [Known failures](#known-failures); no unexpected failures                                                                                                                                                                                       |
+| Cases | 138 of 143 pass their gating assertions (97%); grounded 34/38, retrieval 45 of 48 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind three of the grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
+| Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed under [Known failures](#known-failures). The fifth failure, gr-030, is a judge flip: faithfulness 0.67 on an answer whose every sentence is in the retrieved section, see run-to-run variance below |
 | Retrieval      | BM25 recall@6 0.90, MRR 0.83 over the 48 labelled queries now in the suite (deterministic, see Methodology); embedding 0.95 and 0.91, hybrid 0.96 and 0.87                                                                                                                                                                             |
 | Guardrails     | 100% of regex-layer attacks blocked at the input guard, 0 of 3 benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard                                                                                                                           |
 | Judge          | agreement 0.95, kappa 0.90 against 20 human labels at threshold 0.7                                                                                                                                                                                                                                                                    |
 | Cost           | $0.04 for the system under test per full run; about $0.45 including the judge; a smoke run is under $0.25                                                                                                                                                                                                                              |
-| Latency        | mean 0.7 s per answer from GitHub's runners, 1.4 s p50 from a home connection; tool cases about 2.5 s                                                                                                                                                                                                                                  |
+| Latency | mean 0.9 s per answer from GitHub's runners on this run (0.7 s on the first nightly), 1.4 s p50 from a home connection; tool cases about 2.5 s |
 
-Run-to-run variance: across three local full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip. The nightly goes red only when a case not tagged as a known failure fails.
+Run-to-run variance: across three local full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip. The nightly goes red only when a case not tagged as a known failure fails, which is what happened on the run above: gr-030 scored faithfulness 0.67 on the same answer that scored 1.00 in three earlier runs, with every sentence of it present verbatim in the retrieved section (`lockout-and-recovery#app-passcode-lockout`). It is left untagged because it is a grader problem, not a case problem, and tagging it would hide the grader's variance.
 
 ## Architecture
 
