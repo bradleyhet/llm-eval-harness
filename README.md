@@ -1,8 +1,30 @@
 # llm-eval-harness
 
-An offline evaluation suite for a small retrieval-augmented, tool-calling support assistant, built with [promptfoo](https://www.promptfoo.dev/). The assistant answers questions about a fictional Australian neobank, Corella Bank, from a committed markdown corpus and four session-scoped tools. The suite measures whether its answers are grounded, whether retrieval finds the right chunks, whether tools are used and scoped correctly, whether guardrails catch attacks without blocking ordinary customers, whether it abstains when the corpus is silent, and what each answer costs.
+A production-shaped evaluation harness for a retrieval-augmented, tool-calling AI assistant, built with [promptfoo](https://www.promptfoo.dev/). It is designed to catch retrieval failures, ungrounded answers, unsafe or mis-scoped tool use, cross-customer data leakage and prompt attacks before deployment, and to report the cost of doing so.
 
-Everything here is fictional: the bank, its products, fees, limits, policies and customers. Nothing in this repository describes a real financial institution.
+| | |
+|---|---|
+| Cases | 142; 138 pass (97%), the 4 failures are documented known failures |
+| Retrieval | recall@6 0.89, MRR 0.83 over 47 hand-labelled queries |
+| Judge | agreement 0.95, Cohen's kappa 0.90 against 20 human labels |
+| Guardrails | 100% of regex-layer attacks blocked; 0 of 3 benign lookalikes blocked |
+| Cost | $0.04 per full run for the system under test, about $0.45 with the judge |
+
+Numbers are from the first nightly run on GitHub Actions on 2026-09-14 ([run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)); the full table is under [Latest numbers](#latest-numbers). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
+
+The assistant under test answers questions about a fictional Australian neobank, Corella Bank, from a committed markdown corpus and four session-scoped tools. Everything here is fictional: the bank, its products, fees, limits, policies and customers. Nothing in this repository describes a real financial institution.
+
+## What this demonstrates
+
+- Offline evaluation sets under version control, 142 cases across six categories, with a 44-case smoke tier gating every push.
+- Deterministic and LLM-judged scoring side by side, so a judge flip can never mask a broken fact check.
+- Retrieval recall@6 and MRR against hand-labelled chunk ids, run in CI with no model and no key.
+- Tool-trace and authorisation checks, including a canary scan for another customer's data in the answer, the tool arguments and the tool results.
+- A guardrail red-team with attacks that deliberately bypass the regex layer, and benign lookalikes so the false-positive rate is measured, not assumed.
+- Abstention checks, cost and latency budgets, and a nightly run that appends to [RESULTS.md](RESULTS.md).
+- Judge calibration against human labels, which found and fixed a bias in promptfoo's stock faithfulness grader.
+
+It does not show: answer relevance by embedding similarity (OpenRouter offers no embedding endpoint to promptfoo); real users or online evaluation; multi-turn behaviour beyond one prior exchange; adversarial coverage beyond the hand-written attacks; statistical significance at this sample size. Pass rates here say nothing about a real bank, and the BM25 retriever does not reproduce a production embedding retriever. The pipeline shape mirrors a production assistant I built; the numbers are about this corpus and these cases only.
 
 ## What is measured
 
@@ -41,6 +63,16 @@ query ──> sanitiseInput ──> validateRoles ──> BM25 retrieval (k=6) �
 The whole pipeline is one plain function, `answer()` in `src/assistant/answer.ts`, with the retriever, LLM client and customer store injected. The unit tests run it end to end against a scripted LLM with no network. The promptfoo provider in `src/eval/provider.ts` wraps the same function and returns `{ answer, context, trace }` so the RAG graders see exactly the chunks and tool results the model saw.
 
 The tools take no customer identifier. The session decides whose data is visible, mirroring row-level security as the only authorisation boundary in a production assistant. Each fixture customer carries canary strings found nowhere else, so any cross-customer leak is detectable by a string scan.
+
+**Why BM25?** The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bit deterministic, so recall@6 and MRR are true regression gates: they run in CI with no model call, no key and no run-to-run variance, and any change in the retrieval numbers is a change in the corpus or the retriever, never in an API. That is what a retrieval baseline is for. A production system would compare this baseline against embedding and hybrid retrieval on the same labelled queries; the paraphrase slice below (recall@6 0.789) is the documented case for running that comparison here, and it is the next planned enhancement rather than a replacement for the baseline.
+
+## Engineering decisions
+
+- **The judge is from a different model family than the system under test.** Gemini 2.5 Flash answers; Claude Sonnet grades. This avoids self-preference, and both slugs are recorded in every results row.
+- **Customer identity comes from the session, not from the model.** No tool accepts a customer id, so the model cannot ask for another customer's data even under a successful prompt attack. The canary scan checks that this holds in the answer, the tool arguments and the tool results.
+- **Known failures stay in the suite.** Cases that fail for a real reason are tagged, classed and dated in their metadata, run nightly, and listed below. The nightly goes red only on a failure that is not tagged. Deleting them would make the suite look better and tell less.
+- **The corpus was fixed, not the ranker.** When BM25 missed eight paraphrases, the target sections gained a sentence of ordinary customer phrasing, which is what a support writer would do. Three later misses found end to end were recorded as known failures rather than patched, so the published baseline is the honest one.
+- **The grader was calibrated before it was trusted.** Twenty human-labelled answers showed promptfoo's stock faithfulness prompt rejecting every faithful short answer at the planned threshold and flipping between runs. The prompts were overridden and re-swept; the suite uses the threshold the sweep supports, and the calibration set is committed so it can grow.
 
 ## Quick start
 
@@ -105,7 +137,7 @@ The three retrieval misses are the same paraphrase weakness the retrieval baseli
 
 ## Latest numbers
 
-CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml). The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
+The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
 
 From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)), details in [RESULTS.md](RESULTS.md):
 
@@ -114,18 +146,12 @@ From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 3
 | Cases | 138 of 142 pass (97%); grounded 35/38, retrieval 47/47, tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
 | Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed above; no unexpected failures |
 | Retrieval | recall@6 0.89, MRR 0.83 over 47 labelled queries |
-| Guardrails | 100% of regex-layer attacks blocked at the input guard, 0% of benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
+| Guardrails | 100% of regex-layer attacks blocked at the input guard, 0 of 3 benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
 | Judge | agreement 0.95, kappa 0.90 against 20 human labels at threshold 0.7 |
 | Cost | $0.04 for the system under test per full run; about $0.45 including the judge; a smoke run is under $0.25 |
 | Latency | mean 0.7 s per answer from GitHub's runners, 1.4 s p50 from a home connection; tool cases about 2.5 s |
 
 Run-to-run variance: across three local full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip. The nightly goes red only when a case not tagged as a known failure fails.
-
-## What this does and does not show
-
-It does show: offline evaluation sets under version control; deterministic and LLM-judged scoring side by side; retrieval recall and MRR against hand-labelled ids; tool-trace and authorisation checks; a guardrail red-team with a measured false-positive rate; abstention checks; cost and latency budgets; a CI gate on GitHub Actions; judge calibration against human labels.
-
-It does not show: answer relevance by embedding similarity (OpenRouter offers no embedding endpoint to promptfoo); real users or online evaluation; multi-turn behaviour beyond one prior exchange; adversarial coverage beyond the hand-written attacks; statistical significance at this sample size. Pass rates here say nothing about a real bank, and the BM25 retriever does not reproduce a production embedding retriever. The pipeline shape mirrors a production assistant I built; the numbers are about this corpus and these cases only.
 
 ## Repository layout
 
@@ -149,6 +175,10 @@ tests/                      Vitest unit tests (pipeline runs against a scripted 
 - Install with npm, not `bun install`: promptfoo's dependency graph stalled Bun's resolver on Windows during development. Bun is used to run the TypeScript scripts; promptfoo itself runs under Node.
 - `latency` assertions are only meaningful with `--no-cache`, which the full run and the nightly workflow use.
 - Australian English throughout.
+
+## Development
+
+Development used AI-assisted coding tools, including Claude Code. Architecture, evaluation methodology, test design and final implementation decisions were reviewed and directed by the repository owner.
 
 ## Licence
 
