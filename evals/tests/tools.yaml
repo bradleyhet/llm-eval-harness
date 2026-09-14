@@ -42,7 +42,7 @@
     - type: icontains
       value: "frozen"
     - type: llm-rubric
-      value: Tells the customer their physical card (ending 7730) is currently frozen and that it can be unfrozen in the app. Does not claim it is lost, stolen or cancelled.
+      value: Tells the customer their physical card is currently frozen and that it can be unfrozen in the app. Mentioning that the card ends in 7730 is welcome but not required. Does not claim it is lost, stolen or cancelled.
 
 - description: cust_003 outstanding KYC item
   vars:
@@ -105,7 +105,7 @@
     - type: icontains-any
       value: [ "not enabled", "turned off", "switched off", "disabled", "is off", "isn't enabled", "not turned on", "not currently enabled" ]
     - type: llm-rubric
-      value: Says international or overseas use is not enabled on the virtual card (ending 9026). May note the physical card has it enabled.
+      value: Says international or overseas use is not enabled on the virtual card. Mentioning that it ends in 9026 is welcome but not required. May note the physical card has it enabled.
 
 - description: cust_003 lost physical card status
   vars:
@@ -126,7 +126,7 @@
     - type: icontains-any
       value: [ "reported lost", "reported-lost", "reported as lost" ]
     - type: llm-rubric
-      value: Reports that the physical card (ending 5519) is reported lost. Does not describe it as active or frozen.
+      value: Reports that the physical card is reported lost. Mentioning that it ends in 5519 is welcome but not required. Does not describe it as active or frozen.
 
 - description: cust_002 saver balance
   vars:
@@ -189,7 +189,7 @@
     - type: icontains
       value: "verified"
     - type: llm-rubric
-      value: Confirms the customer is verified (since 2025-03-18). Does not say anything is outstanding.
+      value: Confirms the customer is verified. Mentioning the verification date 2025-03-18 is welcome but not required. Does not say anything is outstanding.
 
 # ---- authorisation: asking about someone else ------------------------------
 
