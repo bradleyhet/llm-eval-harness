@@ -12,7 +12,7 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 | Guardrails | 100% of regex-layer attacks blocked; 0 of 3 benign lookalikes blocked |
 | Cost | $0.04 per full run for the system under test, about $0.45 with the judge |
 
-Numbers are from the first nightly run on GitHub Actions on 2026-09-14 ([run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)); the full table is under [Latest numbers](#latest-numbers). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
+Numbers are from the first nightly run on GitHub Actions on 2026-09-14 ([run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)); the full table is under [Latest results](#latest-results). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
 
 The assistant under test answers questions about a fictional Australian neobank, Corella Bank, from a committed markdown corpus and four session-scoped tools. Everything here is fictional: the bank, its products, fees, limits, policies and customers. Nothing in this repository describes a real financial institution.
 
@@ -28,20 +28,23 @@ The assistant under test answers questions about a fictional Australian neobank,
 
 It does not show: answer relevance by embedding similarity (promptfoo's `similar` assertion is not wired up); real users or online evaluation; multi-turn behaviour beyond one prior exchange; adversarial coverage beyond the hand-written attacks; statistical significance at this sample size. Pass rates here say nothing about a real bank, and the BM25 retriever does not reproduce a production embedding retriever. The pipeline shape mirrors a production assistant I built; the numbers are about this corpus and these cases only.
 
-## What is measured
+## Latest results
 
-| Category | Cases | How it is scored |
-|---|---|---|
-| Grounded Q&A | 38 | `context-faithfulness` and `context-recall` graded by an LLM judge, deterministic `icontains` checks on the key fact, `not-icontains` on the distractor value, and an `llm-rubric` |
-| Retrieval | 48 | Deterministic recall@6 and MRR of BM25 against hand-labelled chunk ids, no LLM involved |
-| Tools | 15 | Tool-trace assertions (which tools were called, whether they succeeded), a canary scan that fails if another customer's data appears anywhere in the answer, tool arguments or tool results, and a rubric that the assistant declines cross-customer requests |
-| Guardrails | 22 | Which layer handled the request (`input-guard`, `role-validation`, `output-guard` or none), refusal wording, canary absence. Includes paraphrased attacks that deliberately pass the regex layer, and benign lookalikes that must not be blocked, so both catch rate and false-positive rate are reported |
-| Abstention | 12 | Out-of-corpus and in-domain-but-absent questions must produce the abstention phrase with no invented figure |
-| Budget | 8 | Latency, cost and tool-round ceilings, nightly only. A smoke alarm, not a benchmark |
+The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
 
-142 cases in total; 44 are tagged `tier: smoke` and gate every push and pull request. The full set runs nightly and appends a row to [RESULTS.md](RESULTS.md).
+From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)), details in [RESULTS.md](RESULTS.md):
 
-The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, because it runs the provider in retrieval mode with no LLM and no key. The other five categories run from `promptfooconfig.yaml`. Two promptfoo behaviours shaped the dataset format: a `file://` string inside a test case is dereferenced as file content (so a per-test provider override cannot point at the TypeScript provider), and an array-valued var is expanded into one test case per element (so list-valued vars such as `relevantChunkIds` and `expectTools` are stored as JSON strings).
+| | |
+|---|---|
+| Cases | 138 of 142 pass their gating assertions (97%); grounded 35/38, retrieval 44 of 47 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind the three grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
+| Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed under [Known failures](#known-failures); no unexpected failures |
+| Retrieval | BM25 recall@6 0.90, MRR 0.83 over the 48 labelled queries now in the suite (deterministic, see Methodology); embedding 0.95 and 0.91, hybrid 0.96 and 0.87 |
+| Guardrails | 100% of regex-layer attacks blocked at the input guard, 0 of 3 benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
+| Judge | agreement 0.95, kappa 0.90 against 20 human labels at threshold 0.7 |
+| Cost | $0.04 for the system under test per full run; about $0.45 including the judge; a smoke run is under $0.25 |
+| Latency | mean 0.7 s per answer from GitHub's runners, 1.4 s p50 from a home connection; tool cases about 2.5 s |
+
+Run-to-run variance: across three local full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip. The nightly goes red only when a case not tagged as a known failure fails.
 
 ## Architecture
 
@@ -80,26 +83,20 @@ The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bi
 - **The corpus was fixed, not the ranker.** When BM25 missed eight paraphrases, the target sections gained a sentence of ordinary customer phrasing, which is what a support writer would do. Three later misses found end to end were recorded as known failures rather than patched, so the published baseline is the honest one.
 - **The grader was calibrated before it was trusted.** Twenty human-labelled answers showed promptfoo's stock faithfulness prompt rejecting every faithful short answer at the planned threshold and flipping between runs. The prompts were overridden and re-swept; the suite uses the threshold the sweep supports, and the calibration set is committed so it can grow.
 
-## Quick start
+## What is measured
 
-Requires Node 22.22 or newer and Bun 1.3 or newer. Install with npm (see the note below), run scripts with Bun.
+| Category | Cases | How it is scored |
+|---|---|---|
+| Grounded Q&A | 38 | `context-faithfulness` and `context-recall` graded by an LLM judge, deterministic `icontains` checks on the key fact, `not-icontains` on the distractor value, and an `llm-rubric` |
+| Retrieval | 48 | Deterministic recall@6 and MRR of BM25 against hand-labelled chunk ids, no LLM involved |
+| Tools | 15 | Tool-trace assertions (which tools were called, whether they succeeded), a canary scan that fails if another customer's data appears anywhere in the answer, tool arguments or tool results, and a rubric that the assistant declines cross-customer requests |
+| Guardrails | 22 | Which layer handled the request (`input-guard`, `role-validation`, `output-guard` or none), refusal wording, canary absence. Includes paraphrased attacks that deliberately pass the regex layer, and benign lookalikes that must not be blocked, so both catch rate and false-positive rate are reported |
+| Abstention | 12 | Out-of-corpus and in-domain-but-absent questions must produce the abstention phrase with no invented figure |
+| Budget | 8 | Latency, cost and tool-round ceilings, nightly only. A smoke alarm, not a benchmark |
 
-```bash
-npm ci
-cp .env.example .env          # add an OpenRouter key
-npm run lint && npm run typecheck && npm test
-npm run retrieval:metrics      # deterministic, no key needed
-npm run retrieval:metrics -- --retriever embedding,hybrid   # from the committed vector cache, no key needed
-npm run embed:cache            # refresh that cache after corpus, label or dataset edits (key needed only if something is missing)
-npm run eval:retrieval         # 48 retrieval cases through promptfoo, no key needed
-npm run eval:validate          # validate all three promptfoo configs
-bun scripts/ask.ts "How much is the monthly fee on an Everyday account?" --customer cust_001
-npm run eval:smoke             # 30 smoke cases through promptfoo (plus the 14 retrieval smoke cases above)
-npm run eval:view              # browse results
-npm run eval:full              # everything, cache off, then:
-bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha $(git rev-parse --short HEAD) --tier full
-npm run calibrate              # judge calibration against 20 human labels
-```
+142 cases in total; 44 are tagged `tier: smoke` and gate every push and pull request. The full set runs nightly and appends a row to [RESULTS.md](RESULTS.md).
+
+The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, because it runs the provider in retrieval mode with no LLM and no key. The other five categories run from `promptfooconfig.yaml`. Two promptfoo behaviours shaped the dataset format: a `file://` string inside a test case is dereferenced as file content (so a per-test provider override cannot point at the TypeScript provider), and an array-valued var is expanded into one test case per element (so list-valued vars such as `relevantChunkIds` and `expectTools` are stored as JSON strings).
 
 ## Methodology
 
@@ -144,7 +141,9 @@ Faithful answers now score 0.75 to 1.00 and planted-error answers 0.33 to 0.75. 
 
 **Guardrails.** The regex layer is a tripwire, not a semantic firewall. The suite includes attacks phrased to slip past it so that the model layer and the tool scoping are measured too, and benign lookalikes ("Can I ignore a pending transaction?") so that over-blocking shows up as a false positive.
 
-**Known failures.** Cases that fail for a reason other than a test bug stay in the suite with `known_failure: true`, a `failure_class` and a dated `failure_note` in their metadata, run in the nightly tier only (with a zero-weight assertion in the retrieval config so the score is still recorded), and are listed here rather than deleted. The triage of the first smoke and full runs on 2026-09-14 found: six test bugs (over-strict rubrics, an expected answer that misquoted the corpus, expected answers carrying facts from sections the question did not ask about or starting with a bare "No." that the recall grader cannot attribute, a naive string check that failed a correct refusal, and benign lookalike rows asserting groundedness on questions the corpus does not answer), all fixed; sixteen grader false rejects, fixed by overriding the grader prompts (see Judge calibration); and four genuine failures:
+## Known failures
+
+Cases that fail for a reason other than a test bug stay in the suite with `known_failure: true`, a `failure_class` and a dated `failure_note` in their metadata, run in the nightly tier only (with a zero-weight assertion in the retrieval config so the score is still recorded), and are listed here rather than deleted. The triage of the first smoke and full runs on 2026-09-14 found: six test bugs (over-strict rubrics, an expected answer that misquoted the corpus, expected answers carrying facts from sections the question did not ask about or starting with a bare "No." that the recall grader cannot attribute, a naive string check that failed a correct refusal, and benign lookalike rows asserting groundedness on questions the corpus does not answer), all fixed; sixteen grader false rejects, fixed by overriding the grader prompts (see Judge calibration); and four genuine failures:
 
 | id | class | what happens |
 |---|---|---|
@@ -155,23 +154,26 @@ Faithful answers now score 0.75 to 1.00 and planted-error answers 0.33 to 0.75. 
 
 The three retrieval misses are the same paraphrase weakness the retrieval baseline shows, found end to end. The embedding retriever retrieves all three, and a full run on it passes all three end to end while introducing one new miss of its own (see the retriever comparison under Methodology); they stay listed because the assistant under test runs on BM25.
 
-## Latest numbers
+## Quick start
 
-The first run on GitHub Actions, both jobs green, is [run 34806030216](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806030216).
+Requires Node 22.22 or newer and Bun 1.3 or newer. Install with npm (see the note below), run scripts with Bun.
 
-From the first nightly full run on GitHub Actions (2026-09-14, cache off, [run 34806284983](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34806284983)), details in [RESULTS.md](RESULTS.md):
-
-| | |
-|---|---|
-| Cases | 138 of 142 pass their gating assertions (97%); grounded 35/38, retrieval 44 of 47 queries hit at k=6 (the three misses are recorded by a zero-weight assertion rather than gated, and are the same misses behind the three grounded failures), tools 15/15, guardrails 21/22, abstention 12/12, budget 8/8 |
-| Known failures | 4 (three retrieval misses, one prompt leak caught by the output guard), all listed above; no unexpected failures |
-| Retrieval | BM25 recall@6 0.90, MRR 0.83 over the 48 labelled queries now in the suite (deterministic, see Methodology); embedding 0.95 and 0.91, hybrid 0.96 and 0.87 |
-| Guardrails | 100% of regex-layer attacks blocked at the input guard, 0 of 3 benign lookalikes blocked; of the five paraphrased attacks aimed at the model layer, four refused outright and one leaked to the output guard |
-| Judge | agreement 0.95, kappa 0.90 against 20 human labels at threshold 0.7 |
-| Cost | $0.04 for the system under test per full run; about $0.45 including the judge; a smoke run is under $0.25 |
-| Latency | mean 0.7 s per answer from GitHub's runners, 1.4 s p50 from a home connection; tool cases about 2.5 s |
-
-Run-to-run variance: across three local full runs on the same day, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. Expect roughly one judge flip per hundred cases per run; the deterministic checks do not flip. The nightly goes red only when a case not tagged as a known failure fails.
+```bash
+npm ci
+cp .env.example .env          # add an OpenRouter key
+npm run lint && npm run typecheck && npm test
+npm run retrieval:metrics      # deterministic, no key needed
+npm run retrieval:metrics -- --retriever embedding,hybrid   # from the committed vector cache, no key needed
+npm run embed:cache            # refresh that cache after corpus, label or dataset edits (key needed only if something is missing)
+npm run eval:retrieval         # 48 retrieval cases through promptfoo, no key needed
+npm run eval:validate          # validate all three promptfoo configs
+bun scripts/ask.ts "How much is the monthly fee on an Everyday account?" --customer cust_001
+npm run eval:smoke             # 30 smoke cases through promptfoo (plus the 14 retrieval smoke cases above)
+npm run eval:view              # browse results
+npm run eval:full              # everything, cache off, then:
+bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha $(git rev-parse --short HEAD) --tier full
+npm run calibrate              # judge calibration against 20 human labels
+```
 
 ## Repository layout
 
