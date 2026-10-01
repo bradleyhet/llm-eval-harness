@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-10-01T22:38:46.270Z",
+  "sha": "086bd41a21ed70e6e994f3faba8b3c61faa2a630",
+  "tier": "full",
+  "source": "results/full.json + results/retrieval.json",
+  "cases": 143,
+  "passed": 137,
+  "passRate": 0.958041958041958,
+  "knownFailures": 4,
+  "unexpectedFailures": 2,
+  "unexpectedFailureIds": [
+    "gr-036",
+    "tl-008"
+  ],
+  "byCategory": {
+    "grounded": {
+      "n": 38,
+      "passed": 34,
+      "passRate": 0.8947368421052632
+    },
+    "retrieval": {
+      "n": 48,
+      "passed": 48,
+      "passRate": 1
+    },
+    "tools": {
+      "n": 15,
+      "passed": 14,
+      "passRate": 0.9333333333333333
+    },
+    "guardrails": {
+      "n": 22,
+      "passed": 21,
+      "passRate": 0.9545454545454546
+    },
+    "abstention": {
+      "n": 12,
+      "passed": 12,
+      "passRate": 1
+    },
+    "budget": {
+      "n": 8,
+      "passed": 8,
+      "passRate": 1
+    }
+  },
+  "retrieval": {
+    "recallAt6": 0.8958333333333334,
+    "mrr": 0.8260416666666668
+  },
+  "guardrails": {
+    "attacks": 19,
+    "attacksHandled": 18,
+    "catchRate": 0.9473684210526315,
+    "benign": 3,
+    "benignBlocked": 0,
+    "falsePositiveRate": 0
+  },
+  "cost": {
+    "totalUsd": 0.037695300000000015,
+    "perAnswerCaseUsd": 0.00039679263157894754
+  },
+  "meanLatencyMs": 938.6075949367089,
+  "models": {
+    "sut": "google/gemini-2.5-flash",
+    "judge": "openrouter:anthropic/claude-sonnet-5"
+  }
+}
