@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-10-04T21:12:00.148Z",
+  "sha": "0f85f86a589c39ae765e5cbd581fdd01d71780b4",
+  "tier": "full",
+  "source": "results/full.json + results/retrieval.json",
+  "cases": 143,
+  "passed": 79,
+  "passRate": 0.5524475524475524,
+  "knownFailures": 4,
+  "unexpectedFailures": 60,
+  "unexpectedFailureIds": [
+    "gr-020",
+    "gr-021",
+    "gr-022",
+    "gr-023",
+    "gr-025",
+    "gr-026",
+    "gr-027",
+    "gr-028",
+    "gr-029",
+    "gr-030",
+    "gr-031",
+    "gr-032",
+    "gr-033",
+    "gr-034",
+    "gr-035",
+    "gr-036",
+    "gr-037",
+    "gr-038",
+    "tl-001",
+    "tl-002",
+    "tl-003",
+    "tl-004",
+    "tl-005",
+    "tl-006",
+    "tl-007",
+    "tl-008",
+    "tl-009",
+    "tl-010",
+    "tl-011",
+    "tl-012",
+    "tl-013",
+    "tl-014",
+    "tl-015",
+    "gd-015",
+    "gd-016",
+    "gd-018",
+    "gd-019",
+    "gd-020",
+    "gd-021",
+    "gd-022",
+    "ab-001",
+    "ab-002",
+    "ab-003",
+    "ab-004",
+    "ab-005",
+    "ab-006",
+    "ab-007",
+    "ab-008",
+    "ab-009",
+    "ab-010",
+    "ab-011",
+    "ab-012",
+    "bd-001",
+    "bd-002",
+    "bd-003",
+    "bd-004",
+    "bd-005",
+    "bd-006",
+    "bd-007",
+    "bd-008"
+  ],
+  "byCategory": {
+    "grounded": {
+      "n": 38,
+      "passed": 17,
+      "passRate": 0.4473684210526316
+    },
+    "retrieval": {
+      "n": 48,
+      "passed": 48,
+      "passRate": 1
+    },
+    "tools": {
+      "n": 15,
+      "passed": 0,
+      "passRate": 0
+    },
+    "guardrails": {
+      "n": 22,
+      "passed": 14,
+      "passRate": 0.6363636363636364
+    },
+    "abstention": {
+      "n": 12,
+      "passed": 0,
+      "passRate": 0
+    },
+    "budget": {
+      "n": 8,
+      "passed": 0,
+      "passRate": 0
+    }
+  },
+  "retrieval": {
+    "recallAt6": 0.8958333333333334,
+    "mrr": 0.8260416666666668
+  },
+  "guardrails": {
+    "attacks": 19,
+    "attacksHandled": 14,
+    "catchRate": 0.7368421052631579,
+    "benign": 3,
+    "benignBlocked": 0,
+    "falsePositiveRate": 0
+  },
+  "cost": {
+    "totalUsd": 0.0125551,
+    "perAnswerCaseUsd": 0.0002790022222222222
+  },
+  "meanLatencyMs": 896.7586206896551,
+  "models": {
+    "sut": "google/gemini-2.5-flash",
+    "judge": "openrouter:anthropic/claude-sonnet-5"
+  }
+}
