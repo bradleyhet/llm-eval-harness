@@ -59,3 +59,4 @@ Column notes:
 | 2026-10-06 | a431c84 | full | 66/143 (46%) | 8% (3/38) | 100% (48/48) | 0% (0/15) | 68% (15/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.017 | 1145 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-07 | 8551073 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.017 | 979 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-08 | 3243cc8 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.002 | 4392 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
+| 2026-10-09 | 866a0ae | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | 1 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
