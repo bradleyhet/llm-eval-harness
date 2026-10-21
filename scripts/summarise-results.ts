@@ -31,7 +31,7 @@ const { values: args, positionals } = parseArgs({
     sha: { type: "string", default: "local" },
     tier: { type: "string", default: "full" },
     results: { type: "string", default: "RESULTS.md" },
-    /** Exit 1 when any case not tagged known_failure failed. Used by the nightly workflow. */
+    /** Exit 1 when any case not tagged known_failure failed. Used by the weekly full-eval workflow. */
     "fail-on-unexpected": { type: "boolean", default: false },
   },
 });

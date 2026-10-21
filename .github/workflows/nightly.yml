@@ -1,8 +1,8 @@
-name: Nightly full eval
+name: Weekly full eval
 
 on:
   schedule:
-    - cron: "0 18 * * *" # 02:00 AWST
+    - cron: "0 18 * * 0" # Sunday 18:00 UTC, Monday 02:00 AWST. Weekly since 2026-10-21 (judge cost)
   workflow_dispatch:
 
 permissions:
@@ -49,9 +49,9 @@ jobs:
             results/retrieval-metrics.json
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "results: nightly full eval ${{ github.sha }}"
+          commit_message: "results: weekly full eval ${{ github.sha }}"
           file_pattern: "RESULTS.md results/summary-*.json results/retrieval-metrics.json"
       # Known failures (metadata.known_failure: true) are expected to fail and are listed in the
-      # README; the nightly goes red only when a case that is not tagged fails.
+      # README; the run goes red only when a case that is not tagged fails.
       - name: Fail on unexpected failures
         run: bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha ${{ github.sha }} --tier full --results /dev/null --fail-on-unexpected
