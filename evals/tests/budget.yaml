@@ -1,5 +1,5 @@
 # Budget: ordinary grounded questions with latency, cost and round-count ceilings.
-# Nightly only (tier: full); the ceilings are generous smoke alarms, not a benchmark.
+# Full run only (tier: full); the ceilings are generous smoke alarms, not a benchmark.
 # latency needs --no-cache to be meaningful; eval:full passes it.
 
 - description: budget, everyday fee
