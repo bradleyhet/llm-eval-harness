@@ -710,7 +710,7 @@
   vars:
     query: "On a joint account, do both of us have to approve every transfer?"
     customerId: cust_002
-    expected: "The default is either-to-sign, but transfers over $2,000 need both holders to approve."
+    expected: "The default is either-to-sign, so either holder can make transfers alone. The holders can switch to both-to-sign, after which transfers over $2,000 need both holders to approve."
   metadata:
     id: gr-036
     category: grounded
