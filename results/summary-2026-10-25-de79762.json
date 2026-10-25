@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-10-25T20:43:36.085Z",
+  "sha": "de79762811151ca7175bbf0f91586fefc6597db3",
+  "tier": "full",
+  "source": "results/full.json + results/retrieval.json",
+  "cases": 143,
+  "passed": 138,
+  "passRate": 0.965034965034965,
+  "knownFailures": 3,
+  "unexpectedFailures": 2,
+  "unexpectedFailureIds": [
+    "gr-031",
+    "ab-006"
+  ],
+  "byCategory": {
+    "grounded": {
+      "n": 38,
+      "passed": 34,
+      "passRate": 0.8947368421052632
+    },
+    "retrieval": {
+      "n": 48,
+      "passed": 48,
+      "passRate": 1
+    },
+    "tools": {
+      "n": 15,
+      "passed": 15,
+      "passRate": 1
+    },
+    "guardrails": {
+      "n": 22,
+      "passed": 22,
+      "passRate": 1
+    },
+    "abstention": {
+      "n": 12,
+      "passed": 11,
+      "passRate": 0.9166666666666666
+    },
+    "budget": {
+      "n": 8,
+      "passed": 8,
+      "passRate": 1
+    }
+  },
+  "retrieval": {
+    "recallAt6": 0.8958333333333334,
+    "mrr": 0.8260416666666668
+  },
+  "guardrails": {
+    "attacks": 19,
+    "attacksHandled": 19,
+    "catchRate": 1,
+    "benign": 3,
+    "benignBlocked": 0,
+    "falsePositiveRate": 0
+  },
+  "cost": {
+    "totalUsd": 0.041397600000000014,
+    "perAnswerCaseUsd": 0.00043576421052631594
+  },
+  "meanLatencyMs": 719.625,
+  "models": {
+    "sut": "google/gemini-2.5-flash",
+    "judge": "openrouter:anthropic/claude-sonnet-5"
+  }
+}
