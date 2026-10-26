@@ -33,6 +33,8 @@ const { values: args, positionals } = parseArgs({
     results: { type: "string", default: "RESULTS.md" },
     /** Exit 1 when any case not tagged known_failure failed. Used by the weekly full-eval workflow. */
     "fail-on-unexpected": { type: "boolean", default: false },
+    /** With --fail-on-unexpected: results of re-running the failures once. Only a case that fails there too fails the gate. */
+    rerun: { type: "string" },
   },
 });
 
@@ -44,15 +46,21 @@ interface ResultsFile {
 // One or more results files (for example results/full.json plus results/retrieval.json) merge into one row.
 const inputPaths = positionals.length > 0 ? positionals : ["results/latest.json"];
 const inputPath = inputPaths.join(" + ");
-let raw: ResultsFile = {};
-const rows: ResultRow[] = [];
-for (const p of inputPaths) {
+
+function readResults(p: string): { file: ResultsFile; rows: ResultRow[] } {
   if (!existsSync(p)) {
     console.error(`${p} not found`);
     process.exit(1);
   }
   const file = JSON.parse(readFileSync(p, "utf8")) as ResultsFile;
-  rows.push(...(Array.isArray(file.results) ? file.results : (file.results?.results ?? [])));
+  return { file, rows: Array.isArray(file.results) ? file.results : (file.results?.results ?? []) };
+}
+
+let raw: ResultsFile = {};
+const rows: ResultRow[] = [];
+for (const p of inputPaths) {
+  const { file, rows: fileRows } = readResults(p);
+  rows.push(...fileRows);
   if (file.config?.defaultTest?.options?.provider?.text?.id) raw = file;
 }
 if (rows.length === 0) {
@@ -61,6 +69,7 @@ if (rows.length === 0) {
 }
 
 const meta = (r: ResultRow): Record<string, unknown> => r.testCase?.metadata ?? r.metadata ?? {};
+const caseId = (r: ResultRow): string => String(meta(r).id ?? "?");
 const passed = (r: ResultRow): boolean => r.success ?? r.gradingResult?.pass ?? false;
 const categories = ["grounded", "retrieval", "tools", "guardrails", "abstention", "budget"] as const;
 
@@ -128,7 +137,7 @@ const summary = {
   passRate: pct(rows.filter(passed).length, rows.length),
   knownFailures,
   unexpectedFailures: unexpectedFailures.length,
-  unexpectedFailureIds: unexpectedFailures.map((r) => String(meta(r).id ?? "?")),
+  unexpectedFailureIds: unexpectedFailures.map(caseId),
   byCategory,
   retrieval: { recallAt6: namedMean("recall_at_6"), mrr: namedMean("mrr") },
   guardrails,
@@ -187,5 +196,16 @@ if (summary.unexpectedFailures > 0) {
   console.log(`Unexpected failures (${summary.unexpectedFailures}): ${summary.unexpectedFailureIds.join(", ")}`);
 }
 if (args["fail-on-unexpected"] && summary.unexpectedFailures > 0) {
-  process.exit(1);
+  let failing = summary.unexpectedFailureIds;
+  if (args.rerun) {
+    // A case clears the gate only if it was re-run and every re-run row for it passed.
+    const rerunRows = readResults(args.rerun).rows;
+    const rerunIds = new Set(rerunRows.map(caseId));
+    const failedAgain = new Set(rerunRows.filter((r) => !passed(r)).map(caseId));
+    const cleared = failing.filter((id) => rerunIds.has(id) && !failedAgain.has(id));
+    failing = failing.filter((id) => !cleared.includes(id));
+    if (cleared.length > 0) console.log(`Passed on re-run (${cleared.length}): ${cleared.join(", ")}`);
+    if (failing.length > 0) console.log(`Failed again or not re-run (${failing.length}): ${failing.join(", ")}`);
+  }
+  if (failing.length > 0) process.exit(1);
 }
