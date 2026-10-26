@@ -1,7 +1,7 @@
 # Results log
 
 One row per recorded run, appended by `bun scripts/summarise-results.ts <results.json> --sha <sha> --tier <smoke|full>`.
-The nightly workflow appends a `full` row automatically; local rows are added by hand when worth keeping.
+The weekly workflow appends a `full` row automatically; local rows are added by hand when worth keeping.
 Full per-case outputs live in the GitHub Actions artifacts, not in git; only these summaries and
 `results/summary-*.json` are committed.
 
@@ -27,7 +27,7 @@ Column notes:
 
 ## Runs
 
-The rows from 2026-10-04 to the first 2026-10-21 row (`9dce564`) record an OpenRouter account problem, not the assistant's quality. Most model calls in each of those runs were refused with HTTP 402 (out of credit). The exception is 2026-10-20, when the system under test's calls were refused with HTTP 404 because the account's zero-data-retention setting excluded the only Gemini endpoint; the judge's calls were still refused with 402. Most of the passes in those rows are cases that need no model: the 48 retrieval cases, plus the attacks the input guard blocks. The account was fixed on 2026-10-21, and the second row that day (`cd3df20`) is the first valid run since 2026-10-03. Checked against each run's `full-eval` artefact on 2026-10-26.
+The 17 runs from 2026-10-04 to 2026-10-21 (`0f85f86` to `9dce564`) are not listed. OpenRouter refused almost every model call in them with HTTP 402 (out of credit), and on 2026-10-20 refused the system under test's calls with HTTP 404 because the account's zero-data-retention setting excluded the only Gemini endpoint, so they measured the account, not the assistant. Their rows and summary files remain in git history, last present in `4037283`. The `cd3df20` row on 2026-10-21 is the first valid run after the account was fixed.
 
 | date | sha | tier | pass | grounded | retrieval | tools | guardrails | abstention | budget | recall@6 | MRR | catch / false-positive | cost USD | mean latency | SUT | judge |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -57,23 +57,6 @@ The rows from 2026-10-04 to the first 2026-10-21 row (`9dce564`) record an OpenR
 | 2026-10-01 | 086bd41 | full | 137/143 (96%) | 89% (34/38) | 100% (48/48) | 93% (14/15) | 95% (21/22) | 100% (12/12) | 100% (8/8) | 0.90 | 0.83 | 95% / 0% | $0.038 | 939 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-02 | 5876526 | full | 137/143 (96%) | 87% (33/38) | 100% (48/48) | 93% (14/15) | 100% (22/22) | 100% (12/12) | 100% (8/8) | 0.90 | 0.83 | 100% / 0% | $0.037 | 1008 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-03 | 0c370db | full | 138/143 (97%) | 89% (34/38) | 100% (48/48) | 100% (15/15) | 95% (21/22) | 100% (12/12) | 100% (8/8) | 0.90 | 0.83 | 95% / 0% | $0.039 | 1250 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-04 | 0f85f86 | full | 79/143 (55%) | 45% (17/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.013 | 897 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-06 | a431c84 | full | 66/143 (46%) | 8% (3/38) | 100% (48/48) | 0% (0/15) | 68% (15/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.017 | 1145 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-07 | 8551073 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.017 | 979 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-08 | 3243cc8 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.002 | 4392 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-09 | 866a0ae | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | 1 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-10 | 2c6c9df | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | 1 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-11 | ab01ada | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-13 | 739df80 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-13 | cdd5c69 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-14 | 55d9db1 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-15 | 42d38ea | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | 1 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-16 | 91823b9 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | 1 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-17 | 8c60682 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-18 | 99d0d21 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-19 | 7bc6331 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-20 | 393c73e | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
-| 2026-10-21 | 9dce564 | full | 62/143 (43%) | 0% (0/38) | 100% (48/48) | 0% (0/15) | 64% (14/22) | 0% (0/12) | 0% (0/8) | 0.90 | 0.83 | 74% / 0% | $0.000 | n/a | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-21 | cd3df20 | full | 135/143 (94%) | 84% (32/38) | 100% (48/48) | 100% (15/15) | 95% (21/22) | 100% (12/12) | 88% (7/8) | 0.90 | 0.83 | 95% / 0% | $0.041 | 640 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-25 | de79762 | full | 138/143 (97%) | 89% (34/38) | 100% (48/48) | 100% (15/15) | 100% (22/22) | 92% (11/12) | 100% (8/8) | 0.90 | 0.83 | 100% / 0% | $0.041 | 720 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
 | 2026-10-26 | 5fae0b6 | full | 138/143 (97%) | 92% (35/38) | 100% (48/48) | 100% (15/15) | 91% (20/22) | 100% (12/12) | 100% (8/8) | 0.90 | 0.83 | 89% / 0% | $0.041 | 773 ms | google/gemini-2.5-flash | openrouter:openai/gpt-4.1-mini |
