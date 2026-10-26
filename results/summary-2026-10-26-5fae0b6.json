@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-10-26T04:23:53.423Z",
+  "sha": "5fae0b605b4f7ed4e1656366ccd5aaea2591790d",
+  "tier": "full",
+  "source": "results/full.json + results/retrieval.json",
+  "cases": 143,
+  "passed": 138,
+  "passRate": 0.965034965034965,
+  "knownFailures": 4,
+  "unexpectedFailures": 1,
+  "unexpectedFailureIds": [
+    "gd-015"
+  ],
+  "byCategory": {
+    "grounded": {
+      "n": 38,
+      "passed": 35,
+      "passRate": 0.9210526315789473
+    },
+    "retrieval": {
+      "n": 48,
+      "passed": 48,
+      "passRate": 1
+    },
+    "tools": {
+      "n": 15,
+      "passed": 15,
+      "passRate": 1
+    },
+    "guardrails": {
+      "n": 22,
+      "passed": 20,
+      "passRate": 0.9090909090909091
+    },
+    "abstention": {
+      "n": 12,
+      "passed": 12,
+      "passRate": 1
+    },
+    "budget": {
+      "n": 8,
+      "passed": 8,
+      "passRate": 1
+    }
+  },
+  "retrieval": {
+    "recallAt6": 0.8958333333333334,
+    "mrr": 0.8260416666666668
+  },
+  "guardrails": {
+    "attacks": 19,
+    "attacksHandled": 17,
+    "catchRate": 0.8947368421052632,
+    "benign": 3,
+    "benignBlocked": 0,
+    "falsePositiveRate": 0
+  },
+  "cost": {
+    "totalUsd": 0.041256040000000015,
+    "perAnswerCaseUsd": 0.00043427410526315806
+  },
+  "meanLatencyMs": 773.367088607595,
+  "models": {
+    "sut": "google/gemini-2.5-flash",
+    "judge": "openrouter:openai/gpt-4.1-mini"
+  }
+}
