@@ -58,7 +58,7 @@
     - $ref: "evals/assertions/templates.yaml#/faithful"
     - $ref: "evals/assertions/templates.yaml#/recallsExpected"
     - type: icontains-any
-      value: [ "4.35%", "4.35 %", "4.35 per cent" ]
+      value: [ "4.85%", "4.85 %", "4.85 per cent" ]
     - type: icontains-any
       value: [ "$200", "200 dollars" ]
     - type: llm-rubric
