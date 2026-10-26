@@ -94,6 +94,8 @@ The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bi
 
 143 cases in total (38 grounded, 48 retrieval, 15 tools, 22 guardrails, 12 abstention, 8 budget); 44 are tagged `tier: smoke` and gate every push and pull request; a smoke case that fails is re-run once without the cache, and the check goes red only if it fails again. The full set runs weekly (Monday 02:00 AWST; nightly until 2026-10-21) and appends a row to [RESULTS.md](RESULTS.md).
 
+A ruleset on `main` requires a pull request with both CI jobs green; its only bypass is the weekly workflow's deploy key, which commits the RESULTS.md row. [PR #9](https://github.com/bradleyhet/llm-eval-harness/pull/9) is a deliberate break: it changed gr-003's expected bonus rate from 4.35% to 4.85%, the smoke check failed the case on both passes and went red ([run 40277505782](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40277505782)), and the ruleset blocked the merge.
+
 The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, because it runs the provider in retrieval mode with no LLM and no key. The other five categories run from `promptfooconfig.yaml`. Two promptfoo behaviours shaped the dataset format: a `file://` string inside a test case is dereferenced as file content (so a per-test provider override cannot point at the TypeScript provider), and an array-valued var is expanded into one test case per element (so list-valued vars such as `relevantChunkIds` and `expectTools` are stored as JSON strings).
 
 ## Methodology

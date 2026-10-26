@@ -15,7 +15,11 @@ jobs:
   full-eval:
     runs-on: ubuntu-latest
     steps:
+      # The results commit goes straight to main, which the "Protect main" ruleset closes to
+      # everything but a pull request with both CI jobs green. This deploy key is its only bypass.
       - uses: actions/checkout@v5
+        with:
+          ssh-key: ${{ secrets.RESULTS_DEPLOY_KEY }}
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -49,7 +53,8 @@ jobs:
             results/retrieval-metrics.json
       - uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "results: weekly full eval ${{ github.sha }}"
+          # A deploy-key push triggers workflows, unlike the default token's; CI has nothing to check here.
+          commit_message: "results: weekly full eval ${{ github.sha }} [skip ci]"
           file_pattern: "RESULTS.md results/summary-*.json results/retrieval-metrics.json"
       # Known failures (metadata.known_failure: true) are expected to fail and are listed in the
       # README. Any other failure is re-run once, because across 143 judged cases a one-off judge
