@@ -6,7 +6,9 @@
  * 3. Read the raw faithfulness scores, sweep thresholds, print agreement and Cohen's kappa
  *    per threshold, and write results/calibration-summary.json.
  *
- *   bun scripts/calibrate-judge.ts [--skip-eval] [--judge openrouter:anthropic/claude-sonnet-5]
+ *   bun scripts/calibrate-judge.ts [--skip-eval]
+ *
+ * The judge is the provider in promptfooconfig.calibration.yaml; keep it in step with promptfooconfig.yaml.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

@@ -62,7 +62,7 @@
     - type: icontains-any
       value: [ "$200", "200 dollars" ]
     - type: llm-rubric
-      value: States the 4.35% bonus rate and the two conditions, a $200 deposit in the month and no withdrawals. May also mention the 0.10% base rate.
+      value: States the 4.35% bonus rate and the two conditions, a $200 deposit in the month and no withdrawals. Mentioning the 0.10% base rate is allowed but not required.
 
 - description: minimum age to open an account
   vars:
@@ -80,7 +80,7 @@
     - type: icontains-any
       value: [ "16", "sixteen" ]
     - type: llm-rubric
-      value: States the minimum age of 16. May mention the Australian residency requirement.
+      value: States the minimum age of 16. Mentioning the Australian residency requirement is allowed but not required.
 
 - description: minimum opening deposit
   vars:
@@ -118,7 +118,7 @@
     - type: icontains-any
       value: [ "$1,000", "$1000", "1,000 dollars" ]
     - type: llm-rubric
-      value: Describes the starter limits, including the $1,000 balance cap. May mention no international transfers and no card order.
+      value: Describes the starter limits, including the $1,000 balance cap. Mentioning that there are no international transfers and no card order is allowed but not required.
 
 - description: primary identity documents
   vars:
@@ -156,7 +156,7 @@
     - type: icontains-any
       value: [ "ten minutes", "10 minutes" ]
     - type: llm-rubric
-      value: Says automated verification takes about ten minutes. May add that manual review takes up to two business days.
+      value: Says automated verification takes about ten minutes. Adding that manual review takes up to two business days is allowed but not required.
 
 - description: manual review duration
   vars:
@@ -210,7 +210,7 @@
     - type: icontains-any
       value: [ "$5,000", "$5000", "5,000 dollars" ]
     - type: llm-rubric
-      value: States the $5,000 daily purchase limit. May note it is shared across physical and virtual cards.
+      value: States the $5,000 daily purchase limit. Noting that it is shared across physical and virtual cards is allowed but not required.
 
 - description: transaction types that can be blocked
   vars:
@@ -439,7 +439,7 @@
     - type: icontains-any
       value: [ "$1,000", "$1000", "1,000 dollars" ]
     - type: llm-rubric
-      value: States the $1,000 daily ATM withdrawal limit. May note it cannot be raised.
+      value: States the $1,000 daily ATM withdrawal limit. Noting that it cannot be raised is allowed but not required.
 
 - description: card dispute lodgement window
   vars:
@@ -480,7 +480,7 @@
     - type: icontains-any
       value: [ "five business days", "5 business days" ]
     - type: llm-rubric
-      value: Explains provisional credit within five business days for disputes under $500. May note the different rule at $500 or more and that merchant disputes get no provisional credit.
+      value: Explains provisional credit within five business days for disputes under $500. Noting the different rule at $500 or more, and that merchant disputes get no provisional credit, is allowed but not required.
 
 - description: chargeback resolution window
   vars:
@@ -519,7 +519,7 @@
     - type: icontains-any
       value: [ "$8", "8 dollars", "eight dollars" ]
     - type: llm-rubric
-      value: States the flat $8 international transfer fee. May mention the 0.5% exchange margin.
+      value: States the flat $8 international transfer fee. Mentioning the 0.5% exchange margin is allowed but not required.
 
 - description: exchange rate margin
   vars:
@@ -636,7 +636,7 @@
     - type: icontains-any
       value: [ "$7.50", "7.50 dollars" ]
     - type: llm-rubric
-      value: Says the direct debit is dishonoured and a $7.50 fee applies. May mention low balance alerts or automatic top up as prevention.
+      value: Says the direct debit is dishonoured and a $7.50 fee applies. Mentioning low balance alerts or automatic top up as prevention is allowed but not required.
 
 - description: direct debit cancellation fee
   vars:

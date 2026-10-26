@@ -8,9 +8,9 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 | Retrieval dataset      | 48 hand-labelled queries (16 easy, 20 paraphrase, 12 on distractor pairs)                                                         |
 | Recall@6 / MRR         | 0.896 / 0.826 for BM25, the retriever the assistant runs on; 0.948 / 0.910 for the embedding retriever on the same queries        |
 | Known retrieval misses | 3 of 48 for BM25, kept in the suite and listed under Known failures; the embedding retriever hits all three and misses two others |
-| Judge                  | agreement 0.95, Cohen's kappa 0.90 against 20 human labels                                                                        |
+| Judge                  | `openai/gpt-4.1-mini`: agreement 1.00, Cohen's kappa 1.00 against 20 human labels at threshold 0.8 (n=20, a sanity check)          |
 | Guardrails             | 100% of regex-layer attacks blocked; 0 of 3 benign lookalikes blocked                                                             |
-| Cost                   | $0.04 per full run for the system under test, about $0.45 with the judge                                                          |
+| Cost                   | $0.04 per full run for the system under test, about $0.10 with the `gpt-4.1-mini` judge (about $0.66 with the earlier Sonnet 5 judge) |
 
 Numbers are from the nightly full run on GitHub Actions on 2026-09-14 ([run 34823813102](https://github.com/bradleyhet/llm-eval-harness/actions/runs/34823813102), red because of the judge flip); the full table is under [Latest results](#latest-results). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
 
@@ -77,7 +77,7 @@ The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bi
 
 ## Engineering decisions
 
-- **The judge is from a different model family than the system under test.** Gemini 2.5 Flash answers; Claude Sonnet grades. This avoids self-preference, and both slugs are recorded in every results row.
+- **The judge is from a different model family than the system under test.** Gemini 2.5 Flash answers; GPT-4.1 mini grades. This avoids self-preference, and both slugs are recorded in every results row.
 - **Customer identity comes from the session, not from the model.** No tool accepts a customer id, so the model cannot ask for another customer's data even under a successful prompt attack. The canary scan checks that this holds in the answer, the tool arguments and the tool results.
 - **Known failures stay in the suite.** Cases that fail for a real reason are tagged, classed and dated in their metadata, run in the weekly full eval, and listed below. That run goes red only when a case that is not tagged fails, and fails again when re-run. Deleting them would make the suite look better and tell less.
 - **The corpus was fixed, not the ranker.** When BM25 missed eight paraphrases, the target sections gained a sentence of ordinary customer phrasing, which is what a support writer would do. Three later misses found end to end were recorded as known failures rather than patched, so the published baseline is the honest one.
@@ -100,7 +100,7 @@ The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, bec
 
 ## Methodology
 
-**System under test.** `google/gemini-2.5-flash` through OpenRouter at temperature 0, with a 600-token cap and up to three tool rounds. **Judge.** `anthropic/claude-sonnet-5` through OpenRouter, a different model family from the system under test to avoid self-preference. Both slugs are recorded in every results row.
+**System under test.** `google/gemini-2.5-flash` through OpenRouter at temperature 0, with a 600-token cap and up to three tool rounds. **Judge.** `openai/gpt-4.1-mini` through OpenRouter at temperature 0 (`anthropic/claude-sonnet-5` until 2026-10-26, see Judge calibration), a different model family from the system under test to avoid self-preference. Both slugs are recorded in every results row.
 
 **Retrieval.** BM25 (k1 1.2, b 0.75) over 124 chunks, one per H2 section of the 20 corpus documents, with stable ids of the form `doc-slug#heading-slug`. It is bit-for-bit deterministic, so recall@6 is a true regression gate and runs in CI with no secrets. The `minScore` knob is a fraction of the top hit's score, not a cosine similarity; it is set to 0 because at 0.7 it costs about five points of recall on this corpus. The optional embedding retriever uses `google/gemini-embedding-001` through OpenRouter at 768 dimensions, cosine over unit vectors, with the vector for every chunk and labelled query committed in `evals/data/embeddings.json` keyed by a hash of the text; the comparison therefore runs in CI with no key, and a corpus or label edit that outruns the cache fails a unit test instead of silently degrading. For that retriever alone `minScore` is a true cosine threshold. Any promptfoo config can be run on it by setting `RETRIEVER=embedding` (or `retrieval.retriever` in the provider config); `npm run embed:cache` keeps the cache covering every eval query as the input guard sanitises it, since the pipeline retrieves on the sanitised text.
 
@@ -137,7 +137,17 @@ The cause is mechanical. The grader asks the judge to list the answer's statemen
 | 0.70                          | 0.95      | 0.90  | 1             | 0             |
 | 0.80                          | 0.90      | 0.80  | 0             | 2             |
 
-Faithful answers now score 0.75 to 1.00 and planted-error answers 0.33 to 0.75. The suite uses 0.7. The one false accept is a four-claim answer with one planted error scoring 0.75: the score is the supported fraction, so a single error in a long answer is diluted, and the deterministic `not-icontains` checks on distractor values exist to catch exactly that. At n=20 this is a sanity check, not a precise estimate; the labelled set in `evals/calibration/labelled-answers.yaml` is meant to grow.
+Faithful answers now score 0.75 to 1.00 and planted-error answers 0.33 to 0.75. The suite used 0.7 with this judge. The one false accept is a four-claim answer with one planted error scoring 0.75: the score is the supported fraction, so a single error in a long answer is diluted, and the deterministic `not-icontains` checks on distractor values exist to catch exactly that. At n=20 this is a sanity check, not a precise estimate; the labelled set in `evals/calibration/labelled-answers.yaml` is meant to grow.
+
+**Judge change, 2026-10-26.** The judge moved from `anthropic/claude-sonnet-5` to `openai/gpt-4.1-mini`. Re-grading the Sonnet runs' faithfulness 0.67 flips (gr-030, gr-031, gr-023, bd-008) showed the same mechanism as above, surviving the prompt override: Sonnet sometimes opened its claim list with a planning line ("Thinking: I need to pull out the specific claims…"), which became a statement that the verdict step then skipped, and promptfoo counts a missing verdict as a failure. In 18 re-grades of three verbatim answers it never rejected a real claim, yet scored them between 0.50 and 1.00. The same sweep with `gpt-4.1-mini`:
+
+| gpt-4.1-mini, threshold | agreement | kappa | false accepts | false rejects |
+| ----------------------- | --------- | ----- | ------------- | ------------- |
+| 0.60                    | 0.85      | 0.70  | 3             | 0             |
+| 0.70                    | 0.90      | 0.80  | 2             | 0             |
+| 0.80                    | 1.00      | 1.00  | 0             | 0             |
+
+Every faithful answer scores 1.00 and planted-error answers 0.50 to 0.75, so the suite now uses 0.8. Two prompt-following differences had to be fixed for the switch, each found as a false reject that repeated in five of six re-grades. The stock context-recall prompt let it write "Classification: Attributed" without the `[Attributed]` token promptfoo counts, which scores a fully attributed reference 0.00 (gr-037), so `evals/assertions/context-recall.txt` overrides it. And it read optional rubric clauses ("May mention…") as requirements (gr-032), so those twelve clauses now say "…is allowed but not required".
 
 **Guardrails.** The regex layer is a tripwire, not a semantic firewall. The suite includes attacks phrased to slip past it so that the model layer and the tool scoping are measured too, and benign lookalikes ("Can I ignore a pending transaction?") so that over-blocking shows up as a false positive.
 
