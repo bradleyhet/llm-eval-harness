@@ -16,8 +16,8 @@ jobs:
     name: Lint, typecheck, unit tests, retrieval metrics
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -34,7 +34,7 @@ jobs:
         run: npm run retrieval:metrics -- --retriever embedding,hybrid
       - name: Retrieval evals through promptfoo (no LLM, no key)
         run: npx promptfoo eval -c promptfooconfig.retrieval.yaml --no-cache -o results/retrieval.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: retrieval-metrics
@@ -49,14 +49,14 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - name: Cache promptfoo responses
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/promptfoo
           key: promptfoo-${{ hashFiles('promptfooconfig.yaml', 'evals/**', 'src/**', 'corpus/**') }}
@@ -69,7 +69,7 @@ jobs:
           --filter-metadata tier=smoke
           --max-concurrency 4
           -o results/smoke.json -o results/smoke.html
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: smoke-eval

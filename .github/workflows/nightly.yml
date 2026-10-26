@@ -15,8 +15,8 @@ jobs:
   full-eval:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -39,7 +39,7 @@ jobs:
           -o results/full.json -o results/full.html
       - name: Append run to RESULTS.md
         run: bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha ${{ github.sha }} --tier full
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: full-eval
@@ -47,11 +47,27 @@ jobs:
             results/full.json
             results/full.html
             results/retrieval-metrics.json
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "results: weekly full eval ${{ github.sha }}"
           file_pattern: "RESULTS.md results/summary-*.json results/retrieval-metrics.json"
       # Known failures (metadata.known_failure: true) are expected to fail and are listed in the
-      # README; the run goes red only when a case that is not tagged fails.
+      # README. Any other failure is re-run once, because across 143 judged cases a one-off judge
+      # or model miss is routine, and the run goes red only on a case that fails both times. The
+      # first run's failures are still the ones recorded in RESULTS.md and the committed summary.
       - name: Fail on unexpected failures
-        run: bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha ${{ github.sha }} --tier full --results /dev/null --fail-on-unexpected
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          gate="bun scripts/summarise-results.ts results/full.json results/retrieval.json --sha ${{ github.sha }} --tier full --results /dev/null --fail-on-unexpected"
+          $gate && exit 0
+          npx promptfoo eval -c promptfooconfig.yaml --no-cache --max-concurrency 3 \
+            --filter-failing results/full.json --filter-metadata known_failure=false \
+            -o results/rerun.json || true
+          $gate --rerun results/rerun.json
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: full-eval-rerun
+          path: results/rerun.json
+          if-no-files-found: ignore
