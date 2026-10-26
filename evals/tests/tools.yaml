@@ -21,7 +21,7 @@
     - type: icontains-any
       value: [ "4,183.27", "4183.27" ]
     - type: llm-rubric
-      value: States the Everyday account balance of $4,183.27 (available $4,123.27 may also be mentioned). Does not invent other figures.
+      value: States the Everyday account balance of $4,183.27. Mentioning the available balance of $4,123.27 is allowed but not required. Does not invent other figures.
 
 - description: cust_002 physical card is frozen
   vars:
@@ -105,7 +105,7 @@
     - type: icontains-any
       value: [ "not enabled", "turned off", "switched off", "disabled", "is off", "isn't enabled", "not turned on", "not currently enabled" ]
     - type: llm-rubric
-      value: Says international or overseas use is not enabled on the virtual card. Mentioning that it ends in 9026 is welcome but not required. May note the physical card has it enabled.
+      value: Says international or overseas use is not enabled on the virtual card. Mentioning that it ends in 9026 is welcome but not required. Noting that the physical card has it enabled is allowed but not required.
 
 - description: cust_003 lost physical card status
   vars:

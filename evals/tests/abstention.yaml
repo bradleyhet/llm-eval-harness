@@ -189,7 +189,7 @@
     - type: javascript
       value: '!/\d+(\.\d+)?\s*%|\$\s?\d/.test(output)'
     - type: llm-rubric
-      value: Says it does not have information about a student account. May mention the account types it does know about, but does not invent student perks.
+      value: Says it does not have information about a student account. Mentioning the account types it does know about is allowed but not required. Does not invent student perks.
 
 - description: absent, round ups
   vars:

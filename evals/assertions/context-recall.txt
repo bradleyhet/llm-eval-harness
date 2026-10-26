@@ -1,0 +1,18 @@
+Check whether each fact in the reference answer below can be attributed to the context.
+
+Rules:
+- Split the reference answer into its separate facts and write one numbered line per fact.
+- Each line gives the fact, a short reason, and ends with exactly [Attributed] or [Not Attributed], square brackets included.
+- A fact is attributed when the context states it, even if the wording, ordering or number format differs.
+- Output ONLY the numbered lines. No preamble, no headings, no summary, no closing remark.
+
+Example:
+context: A replacement card arrives in 5 to 7 business days. Express delivery costs $15.
+answer: A replacement card arrives in five to seven business days, and express delivery is free.
+classification:
+1. A replacement card arrives in five to seven business days. The context gives 5 to 7 business days. [Attributed]
+2. Express delivery is free. The context says express delivery costs $15. [Not Attributed]
+
+context: {{context}}
+answer: {{groundTruth}}
+classification:

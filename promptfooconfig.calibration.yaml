@@ -14,7 +14,7 @@ defaultTest:
   options:
     provider:
       text:
-        id: openrouter:anthropic/claude-sonnet-5
+        id: openrouter:openai/gpt-4.1-mini
         config:
           temperature: 0
           max_tokens: 1024
