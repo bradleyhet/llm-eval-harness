@@ -54,14 +54,21 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - run: npm ci
+      # promptfoo keeps its response cache in ~/.promptfoo/cache. Only the judge's calls go through
+      # it (the assistant is a file:// provider and always runs fresh), so a judge reply is reused
+      # only when the assistant's answer is identical to one already graded.
       - name: Cache promptfoo responses
         uses: actions/cache@v5
         with:
-          path: ~/.cache/promptfoo
+          path: ~/.promptfoo/cache
           key: promptfoo-${{ hashFiles('promptfooconfig.yaml', 'evals/**', 'src/**', 'corpus/**') }}
           restore-keys: promptfoo-
       - name: Run smoke tier
+        continue-on-error: true
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: >
@@ -69,6 +76,18 @@ jobs:
           --filter-metadata tier=smoke
           --max-concurrency 4
           -o results/smoke.json -o results/smoke.html
+      # As in the weekly run, a failing case is re-run once and the job goes red only if it fails
+      # again. The re-run skips the cache, which would otherwise hand back the same judge reply.
+      - name: Fail on failures that repeat
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          gate="bun scripts/summarise-results.ts results/smoke.json --sha ${{ github.sha }} --tier smoke --results /dev/null --fail-on-unexpected"
+          $gate && exit 0
+          npx promptfoo eval -c promptfooconfig.yaml --no-cache --max-concurrency 4 \
+            --filter-failing results/smoke.json \
+            -o results/smoke-rerun.json || true
+          $gate --rerun results/smoke-rerun.json
       - uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -76,3 +95,4 @@ jobs:
           path: |
             results/smoke.json
             results/smoke.html
+            results/smoke-rerun.json
