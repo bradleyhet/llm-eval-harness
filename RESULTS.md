@@ -27,6 +27,8 @@ Column notes:
 
 ## Runs
 
+The rows from 2026-10-04 to the first 2026-10-21 row (`9dce564`) record an OpenRouter account problem, not the assistant's quality. Most model calls in each of those runs were refused with HTTP 402 (out of credit). The exception is 2026-10-20, when the system under test's calls were refused with HTTP 404 because the account's zero-data-retention setting excluded the only Gemini endpoint; the judge's calls were still refused with 402. Most of the passes in those rows are cases that need no model: the 48 retrieval cases, plus the attacks the input guard blocks. The account was fixed on 2026-10-21, and the second row that day (`cd3df20`) is the first valid run since 2026-10-03. Checked against each run's `full-eval` artefact on 2026-10-26.
+
 | date | sha | tier | pass | grounded | retrieval | tools | guardrails | abstention | budget | recall@6 | MRR | catch / false-positive | cost USD | mean latency | SUT | judge |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-09-14 | local | smoke | 70/70 (100%) | 100% (10/10) | 100% (44/44) | 100% (4/4) | 100% (8/8) | 100% (4/4) | n/a | 0.95 | 0.89 | 100% / 0% | $0.009 | 1495 ms | google/gemini-2.5-flash | openrouter:anthropic/claude-sonnet-5 |
