@@ -749,7 +749,7 @@
   vars:
     query: "How do I close a joint account?"
     customerId: cust_001
-    expected: "Both holders must approve the closure within a seven day window, and the account closes two business days after the second approval."
+    expected: "One holder requests the closure and the other has seven days to approve it, and the closure is processed within two business days of the second approval."
   metadata:
     id: gr-038
     category: grounded
@@ -764,4 +764,4 @@
     - type: icontains-any
       value: [ "seven day", "7 day", "seven-day", "7-day" ]
     - type: llm-rubric
-      value: Says closing a joint account needs both holders' approval (one requests it and the other approves within a seven day window) and that the account closes two business days after the second approval. Does not invent other steps or fees.
+      value: Says closing a joint account needs both holders' approval (one requests it and the other approves within seven days) and that closure is processed within two business days of the second approval. Does not invent other steps or fees.
