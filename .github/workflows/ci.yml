@@ -76,7 +76,7 @@ jobs:
           --filter-metadata tier=smoke
           --max-concurrency 4
           -o results/smoke.json -o results/smoke.html
-      # As in the weekly run, a failing case is re-run once and the job goes red only if it fails
+      # As in the nightly run, a failing case is re-run once and the job goes red only if it fails
       # again. The re-run skips the cache, which would otherwise hand back the same judge reply.
       - name: Fail on failures that repeat
         env:
