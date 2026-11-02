@@ -12,7 +12,7 @@ A production-shaped evaluation harness for a retrieval-augmented, tool-calling A
 | Guardrails             | 100% of regex-layer attacks blocked; 0 of 3 benign lookalikes blocked                                                             |
 | Cost                   | $0.04 per full run for the system under test, about $0.10 with the `gpt-4.1-mini` judge (about $0.66 with the earlier Sonnet 5 judge) |
 
-Numbers are from the weekly full run on GitHub Actions on 2026-10-26 ([run 40275250859](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40275250859)); the full table is under [Latest results](#latest-results). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
+Numbers are from the full run on GitHub Actions on 2026-10-26 ([run 40275250859](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40275250859)); the full table is under [Latest results](#latest-results). CI status: [![CI](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleyhet/llm-eval-harness/actions/workflows/ci.yml).
 
 The assistant under test answers questions about a fictional Australian neobank, Corella Bank, from a committed markdown corpus and four session-scoped tools. Everything here is fictional: the bank, its products, fees, limits, policies and customers. Nothing in this repository describes a real financial institution.
 
@@ -23,14 +23,14 @@ The assistant under test answers questions about a fictional Australian neobank,
 - Retrieval recall@6 and MRR against hand-labelled chunk ids, run in CI with no model and no key.
 - Tool-trace and authorisation checks, including a canary scan for another customer's data in the answer, the tool arguments and the tool results.
 - A guardrail red-team with attacks that deliberately bypass the regex layer, and benign lookalikes so the false-positive rate is measured, not assumed.
-- Abstention checks, cost and latency budgets, and a weekly full run that appends to [RESULTS.md](RESULTS.md).
+- Abstention checks, cost and latency budgets, and a nightly full run that appends to [RESULTS.md](RESULTS.md).
 - Judge calibration against human labels, which found and fixed a bias in promptfoo's stock faithfulness grader.
 
 It does not show: answer relevance by embedding similarity (promptfoo's `similar` assertion is not wired up); real users or online evaluation; multi-turn behaviour beyond one prior exchange; adversarial coverage beyond the hand-written attacks; statistical significance at this sample size. Pass rates here say nothing about a real bank, and the BM25 retriever does not reproduce a production embedding retriever. The pipeline shape mirrors a production assistant I built; the numbers are about this corpus and these cases only.
 
 ## Latest results
 
-From the weekly full run on GitHub Actions on the current 143-case suite (2026-10-26, cache off, [run 40275250859](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40275250859)), details in [RESULTS.md](RESULTS.md):
+From the full run on GitHub Actions on the current 143-case suite (2026-10-26, cache off, [run 40275250859](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40275250859)), details in [RESULTS.md](RESULTS.md):
 
 |                |                                                                                                                                                                                                                                                                                                                                        |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,7 +42,7 @@ From the weekly full run on GitHub Actions on the current 143-case suite (2026-1
 | Cost           | $0.04 for the system under test per full run; about $0.10 including the `gpt-4.1-mini` judge (about $0.66 with the earlier Sonnet 5 judge)                                                                                                                                                                                             |
 | Latency | mean 0.7 s per answer from GitHub's runners on this run, 1.4 s p50 from a home connection; tool cases about 2.5 s |
 
-Run-to-run variance: across three local full runs on one day with the Sonnet 5 judge, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. That judge flipped roughly once per hundred cases per run; the deterministic checks do not flip. The nightly went red whenever a case not tagged as a known failure failed, as it did on 2026-09-14: gr-030 scored faithfulness 0.67 on the same answer that scored 1.00 in three earlier runs, with every sentence of it present verbatim in the retrieved section (`lockout-and-recovery#app-passcode-lockout`). The cause was a planning line in the judge's claim list (see Judge change under Methodology). gr-030 was left untagged because it was a grader problem, not a case problem, and tagging it would have hidden the grader's variance. The weekly run now re-runs an untagged failure once and goes red only if the case fails again, so a one-off flip is still recorded in [RESULTS.md](RESULTS.md) but no longer fails the run.
+Run-to-run variance: across three local full runs on one day with the Sonnet 5 judge, three grounded cases flipped once each with no change to the assistant. Two were assertion bugs (fixed); one was the `context-recall` grader scoring 0.00 on an answer whose source chunk was retrieved. That judge flipped roughly once per hundred cases per run; the deterministic checks do not flip. The nightly went red whenever a case not tagged as a known failure failed, as it did on 2026-09-14: gr-030 scored faithfulness 0.67 on the same answer that scored 1.00 in three earlier runs, with every sentence of it present verbatim in the retrieved section (`lockout-and-recovery#app-passcode-lockout`). The cause was a planning line in the judge's claim list (see Judge change under Methodology). gr-030 was left untagged because it was a grader problem, not a case problem, and tagging it would have hidden the grader's variance. The nightly run now re-runs an untagged failure once and goes red only if the case fails again, so a one-off flip is still recorded in [RESULTS.md](RESULTS.md) but no longer fails the run.
 
 ## Architecture
 
@@ -77,7 +77,7 @@ The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bi
 
 - **The judge is from a different model family than the system under test.** Gemini 2.5 Flash answers; GPT-4.1 mini grades. This avoids self-preference, and both slugs are recorded in every results row.
 - **Customer identity comes from the session, not from the model.** No tool accepts a customer id, so the model cannot ask for another customer's data even under a successful prompt attack. The canary scan checks that this holds in the answer, the tool arguments and the tool results.
-- **Known failures stay in the suite.** Cases that fail for a real reason are tagged, classed and dated in their metadata, run in the weekly full eval, and listed below. That run goes red only when a case that is not tagged fails, and fails again when re-run. Deleting them would make the suite look better and tell less.
+- **Known failures stay in the suite.** Cases that fail for a real reason are tagged, classed and dated in their metadata, run in the nightly full eval, and listed below. That run goes red only when a case that is not tagged fails, and fails again when re-run. Deleting them would make the suite look better and tell less.
 - **The corpus was fixed, not the ranker.** When BM25 missed eight paraphrases, the target sections gained a sentence of ordinary customer phrasing, which is what a support writer would do. Three later misses found end to end were recorded as known failures rather than patched, so the published baseline is the honest one.
 - **The grader was calibrated before it was trusted.** Twenty human-labelled answers showed promptfoo's stock faithfulness prompt rejecting every faithful short answer at the planned threshold and flipping between runs. The prompts were overridden and re-swept; the suite uses the threshold the sweep supports, and the calibration set is committed so it can grow.
 
@@ -92,9 +92,9 @@ The retriever is a small, dependency-free BM25 over 124 chunks. It is bit-for-bi
 | Abstention   | 12    | Out-of-corpus and in-domain-but-absent questions must produce the abstention phrase with no invented figure                                                                                                                                                                                                     |
 | Budget       | 8     | Latency, cost and tool-round ceilings, full run only. A smoke alarm, not a benchmark                                                                                                                                                                                                                             |
 
-143 cases in total (38 grounded, 48 retrieval, 15 tools, 22 guardrails, 12 abstention, 8 budget); 44 are tagged `tier: smoke` and gate every push and pull request; a smoke case that fails is re-run once without the cache, and the check goes red only if it fails again. The full set runs weekly (Monday 02:00 AWST; nightly until 2026-10-21) and appends a row to [RESULTS.md](RESULTS.md).
+143 cases in total (38 grounded, 48 retrieval, 15 tools, 22 guardrails, 12 abstention, 8 budget); 44 are tagged `tier: smoke` and gate every push and pull request; a smoke case that fails is re-run once without the cache, and the check goes red only if it fails again. The full set runs nightly (02:00 AWST; weekly from 2026-10-21 to 2026-11-01) and appends a row to [RESULTS.md](RESULTS.md).
 
-A ruleset on `main` requires a pull request with both CI jobs green; its only bypass is the weekly workflow's deploy key, which commits the RESULTS.md row. [PR #9](https://github.com/bradleyhet/llm-eval-harness/pull/9) is a deliberate break: it changed gr-003's expected bonus rate from 4.35% to 4.85%, the smoke check failed the case on both passes and went red ([run 40277505782](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40277505782)), and the ruleset blocked the merge.
+A ruleset on `main` requires a pull request with both CI jobs green; its only bypass is the nightly workflow's deploy key, which commits the RESULTS.md row. [PR #9](https://github.com/bradleyhet/llm-eval-harness/pull/9) is a deliberate break: it changed gr-003's expected bonus rate from 4.35% to 4.85%, the smoke check failed the case on both passes and went red ([run 40277505782](https://github.com/bradleyhet/llm-eval-harness/actions/runs/40277505782)), and the ruleset blocked the merge.
 
 The retrieval category has its own config, `promptfooconfig.retrieval.yaml`, because it runs the provider in retrieval mode with no LLM and no key. The other five categories run from `promptfooconfig.yaml`. Two promptfoo behaviours shaped the dataset format: a `file://` string inside a test case is dereferenced as file content (so a per-test provider override cannot point at the TypeScript provider), and an array-valued var is expanded into one test case per element (so list-valued vars such as `relevantChunkIds` and `expectTools` are stored as JSON strings).
 
@@ -199,13 +199,13 @@ evals/data/                 retrieval-labels.yaml, thresholds.json, embeddings.j
 evals/calibration/          20 labelled answers for judge calibration
 scripts/                    retrieval-metrics, embed-cache, ask, calibrate-judge, summarise-results
 tests/                      Vitest unit tests (pipeline runs against a scripted LLM)
-.github/workflows/          ci.yml (quality + smoke eval), nightly.yml (weekly full eval, RESULTS.md append)
+.github/workflows/          ci.yml (quality + smoke eval), nightly.yml (nightly full eval, RESULTS.md append)
 ```
 
 ## Notes
 
 - Install with npm, not `bun install`: promptfoo's dependency graph stalled Bun's resolver on Windows during development. Bun is used to run the TypeScript scripts; promptfoo itself runs under Node.
-- `latency` assertions are only meaningful with `--no-cache`, which the full run and the weekly workflow use.
+- `latency` assertions are only meaningful with `--no-cache`, which the full run and the nightly workflow use.
 - Australian English throughout.
 
 ## Development

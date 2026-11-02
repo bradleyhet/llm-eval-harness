@@ -1,7 +1,7 @@
 # Results log
 
 One row per recorded run, appended by `bun scripts/summarise-results.ts <results.json> --sha <sha> --tier <smoke|full>`.
-The weekly workflow appends a `full` row automatically; local rows are added by hand when worth keeping.
+The nightly workflow appends a `full` row automatically; local rows are added by hand when worth keeping.
 Full per-case outputs live in the GitHub Actions artifacts, not in git; only these summaries and
 `results/summary-*.json` are committed.
 

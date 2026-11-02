@@ -45,7 +45,7 @@ const answerRow = (id: string, success: boolean): unknown => ({
   response: { metadata: { mode: "answer" } },
 });
 
-/** Runs the weekly gate (--fail-on-unexpected) on a first run and, optionally, a re-run of its failures. */
+/** Runs the nightly gate (--fail-on-unexpected) on a first run and, optionally, a re-run of its failures. */
 function gate(first: unknown[], rerun: unknown[] | null, name: string): { status: number | null; stdout: string } {
   const input = join(dir, `${name}.json`);
   writeFileSync(input, JSON.stringify({ results: { results: first } }));
